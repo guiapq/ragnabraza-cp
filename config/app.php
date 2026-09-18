@@ -171,6 +171,7 @@ return [
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
         App\Providers\PasswordHasherProvider::class,
+        App\Providers\Filament\AdminPanelProvider::class,
     ])->toArray(),
 
     /*
