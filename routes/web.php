@@ -20,6 +20,46 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/scoreboard', function () {
+    $seed = 'default';
+    $randoFile = base_path('../.env.rando');
+    if (file_exists($randoFile)) {
+        $content = file_get_contents($randoFile);
+        if (preg_match('/^WORLD_SEED=(.*)$/m', $content, $matches)) {
+            $seed = trim($matches[1]);
+        }
+    }
+
+    try {
+        $speedruns = \App\Models\Game\EventSpeedrun::orderBy('total_seconds', 'asc')->take(10)->get();
+    } catch (\Exception $e) {
+        $speedruns = collect();
+    }
+
+    try {
+        $mvpBounties = \App\Models\Game\EventMvpKill::select(
+            'char_id',
+            'char_name',
+            \Illuminate\Support\Facades\DB::raw('COUNT(*) as total_kills'),
+            \Illuminate\Support\Facades\DB::raw('COUNT(DISTINCT mob_id) as distinct_mvps')
+        )
+        ->groupBy('char_id', 'char_name')
+        ->orderByDesc('total_kills')
+        ->take(10)
+        ->get();
+    } catch (\Exception $e) {
+        $mvpBounties = collect();
+    }
+
+    try {
+        $recentKills = \App\Models\Game\EventMvpKill::orderByDesc('killed_at')->take(6)->get();
+    } catch (\Exception $e) {
+        $recentKills = collect();
+    }
+
+    return view('scoreboard', compact('seed', 'speedruns', 'mvpBounties', 'recentKills'));
+})->name('event.scoreboard');
+
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
     ->prefix('player')
     ->group(function () {
