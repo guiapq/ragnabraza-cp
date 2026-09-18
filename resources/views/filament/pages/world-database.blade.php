@@ -53,8 +53,14 @@
                                 <td class="px-6 py-4 font-bold text-white">{{ $mob['name'] }}</td>
                                 <td class="px-6 py-4"><span class="px-2.5 py-1 bg-gray-800 rounded-md text-xs font-mono">{{ $mob['level'] }}</span></td>
                                 <td class="px-6 py-4 font-mono text-emerald-400">{{ $mob['hp'] }}</td>
-                                <td class="px-6 py-4 font-mono">{{ $mob['def'] }} / {{ $mob['mdef'] }}</td>
-                                <td class="px-6 py-4 font-mono text-xs text-indigo-300">Raça {{ $mob['race'] }} | Elem {{ $mob['element'] }}</td>
+                                <td class="px-6 py-4 font-mono text-xs">
+                                    <span class="text-gray-300">{{ $mob['def'] }}</span> / <span class="text-purple-300">{{ $mob['mdef'] }}</span>
+                                    <div class="text-[10px] text-gray-500">ATK {{ $mob['atk'] }}</div>
+                                </td>
+                                <td class="px-6 py-4 text-xs">
+                                    <span class="inline-block px-2 py-0.5 rounded bg-indigo-950/80 border border-indigo-700/50 text-indigo-300 font-medium">{{ $mob['race'] }}</span>
+                                    <span class="inline-block px-2 py-0.5 rounded bg-amber-950/80 border border-amber-700/50 text-amber-300 font-mono ml-1">{{ $mob['element'] }}</span>
+                                </td>
                             </tr>
                         @empty
                             <tr>
