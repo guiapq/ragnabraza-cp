@@ -10,15 +10,8 @@
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
 
-        <!-- Styles -->
-        <link rel="stylesheet" href="{{ mix('css/app.css') }}">
-
-
         @livewireStyles
-        @vite(['resources/js/app.js', 'resources/sass/app.scss'])
-
-        <!-- Scripts -->
-        <script src="{{ mix('js/app.js') }}" defer></script>
+        @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased bg-light">
         <x-banner />
@@ -32,6 +25,18 @@
                     <x-sidebar-menu></x-sidebar-menu>
                 </div>
                 <div class="col">
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                            <strong>✨ Sucesso:</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                            <strong>⚠️ Atenção:</strong> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
                     {{ $slot }}
                 </div>
             </div>

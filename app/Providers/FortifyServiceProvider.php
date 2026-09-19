@@ -34,6 +34,19 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
+        Fortify::authenticateUsing(function (Request $request) {
+            $login = $request->input('email');
+            $user = \App\Models\User::where('email', $login)
+                ->orWhere('userid', $login)
+                ->first();
+
+            if ($user && app('hash')->check($request->input('password'), $user->getAuthPassword())) {
+                return $user;
+            }
+
+            return null;
+        });
+
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 

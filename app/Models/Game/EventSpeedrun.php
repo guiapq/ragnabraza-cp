@@ -27,6 +27,16 @@ class EventSpeedrun extends Model
         return $this->belongsTo(Character::class, 'char_id', 'char_id');
     }
 
+    public function scopeEligible($query)
+    {
+        return $query->whereDoesntHave('character', function ($q) {
+            $q->where('account_id', '>=', 2000010)
+              ->orWhereHas('user', function ($u) {
+                  $u->where('group_id', '>', 0);
+              });
+        })->where('name', 'not like', '%Test%');
+    }
+
     public function getFormattedTimeAttribute(): string
     {
         $hours = floor($this->total_seconds / 3600);

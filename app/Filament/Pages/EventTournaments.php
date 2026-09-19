@@ -35,7 +35,7 @@ class EventTournaments extends Page
     public function getSpeedruns(): Collection
     {
         try {
-            return EventSpeedrun::orderBy('total_seconds', 'asc')->take(20)->get();
+            return EventSpeedrun::eligible()->orderBy('total_seconds', 'asc')->take(20)->get();
         } catch (\Exception $e) {
             return collect();
         }
@@ -44,7 +44,7 @@ class EventTournaments extends Page
     public function getMvpBounties(): Collection
     {
         try {
-            return EventMvpKill::select(
+            return EventMvpKill::eligible()->select(
                 'char_id',
                 'char_name',
                 DB::raw('COUNT(*) as total_kills'),
@@ -63,7 +63,7 @@ class EventTournaments extends Page
     public function getRecentKills(): Collection
     {
         try {
-            return EventMvpKill::orderByDesc('killed_at')->take(10)->get();
+            return EventMvpKill::eligible()->orderByDesc('killed_at')->take(10)->get();
         } catch (\Exception $e) {
             return collect();
         }

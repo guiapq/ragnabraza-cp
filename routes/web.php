@@ -31,13 +31,13 @@ Route::get('/scoreboard', function () {
     }
 
     try {
-        $speedruns = \App\Models\Game\EventSpeedrun::orderBy('total_seconds', 'asc')->take(10)->get();
+        $speedruns = \App\Models\Game\EventSpeedrun::eligible()->orderBy('total_seconds', 'asc')->take(10)->get();
     } catch (\Exception $e) {
         $speedruns = collect();
     }
 
     try {
-        $mvpBounties = \App\Models\Game\EventMvpKill::select(
+        $mvpBounties = \App\Models\Game\EventMvpKill::eligible()->select(
             'char_id',
             'char_name',
             \Illuminate\Support\Facades\DB::raw('COUNT(*) as total_kills'),
@@ -52,7 +52,7 @@ Route::get('/scoreboard', function () {
     }
 
     try {
-        $recentKills = \App\Models\Game\EventMvpKill::orderByDesc('killed_at')->take(6)->get();
+        $recentKills = \App\Models\Game\EventMvpKill::eligible()->orderByDesc('killed_at')->take(6)->get();
     } catch (\Exception $e) {
         $recentKills = collect();
     }
@@ -77,5 +77,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
                 ->name('game.character.settings');
             Route::post('{character}/settings', [CharacterController::class, 'postCharacterSettings'])
                 ->name('game.character.settings-update');
+            Route::post('{characterId}/unstuck', [CharacterController::class, 'unstuck'])
+                ->name('game.character.unstuck');
         });
     });

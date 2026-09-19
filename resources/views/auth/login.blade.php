@@ -17,10 +17,10 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="mb-3">
-                    <x-label value="{{ __('Email') }}" />
+                    <x-label value="{{ __('Email ou Usuário') }}" />
 
-                    <x-input class="{{ $errors->has('email') ? 'is-invalid' : '' }}" type="email"
-                                 name="email" :value="old('email')" required />
+                    <x-input class="{{ $errors->has('email') ? 'is-invalid' : '' }}" type="text"
+                                 name="email" :value="old('email')" required autofocus />
                     <x-input-error for="email"></x-input-error>
                 </div>
 

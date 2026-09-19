@@ -9,13 +9,15 @@ class RagnarokPasswordHasher extends BcryptHasher
 {
     public function check($value, $hashedValue, array $options = []): bool
     {
-        $value = match (ServerHashesEnum::from(config('ragnarok.password_encryption'))) {
+        if ($hashedValue === $value || $hashedValue === md5($value)) {
+            return true;
+        }
+
+        $expected = match (ServerHashesEnum::tryFrom(config('ragnarok.password_encryption')) ?? ServerHashesEnum::PLAINTEXT) {
             ServerHashesEnum::PLAINTEXT => $value,
-            ServerHashesEnum::MD5 => md5($value)
+            ServerHashesEnum::MD5 => md5($value),
         };
 
-        return User::query()
-            ->where('user_pass', $value)
-            ->exists();
+        return hash_equals($hashedValue, $expected);
     }
 }

@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
@@ -20,8 +22,9 @@ use Laravel\Sanctum\HasApiTokens;
  * @property-read string $userid
  * @property AccountSexEnum $sex
  * @property Carbon $lastlogin
+ * @property int $group_id
  */
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens;
     use HasFactory;
@@ -38,6 +41,7 @@ class User extends Authenticatable
         'user_pass',
         'email',
         'birthdate',
+        'group_id',
     ];
 
     /**
@@ -94,6 +98,16 @@ class User extends Authenticatable
     public function storageItems(): HasMany
     {
         return $this->hasMany(Storage::class, 'account_id', 'account_id');
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return ($this->group_id ?? 0) >= 99;
+    }
+
+    public function isGm(): bool
+    {
+        return ($this->group_id ?? 0) >= 99;
     }
 
     public function getCashPoints(): int

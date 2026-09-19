@@ -18,17 +18,20 @@
                                  class="card-image" width="100%"/>
                         </div>
                         <div class="card-body d-flex flex-column justify-content-center text-center">
-                            <h3 class="m-0">{{ $character->name }}</h3>
-                            <div class="text-secondary">
-                                {{-- TODO: Staff icons--}}
-                                😁 Staff Ragnafodase
+                            <h3 class="m-0 fw-bold">{{ $character->name }}</h3>
+                            <div class="my-2">
+                                @if(auth()->user()->group_id >= 99)
+                                    <span class="badge bg-danger text-white">🛡️ Staff GM</span>
+                                @elseif(auth()->user()->vip_time > 0)
+                                    <span class="badge bg-warning text-dark">⭐ VIP</span>
+                                @else
+                                    <span class="badge bg-secondary text-white">⚔️ Aventureiro</span>
+                                @endif
                             </div>
                             <div>
-                                        <span
-                                            class="badge text-bg-dark">{{ $character->base_level . '/' . $character->job_level }}</span>
-                                <span class="badge text-bg-dark">{{ $character->class->getName() }}</span>
-                                <span class="badge text-bg-dark">{{ $character->zeny }} <span
-                                        class="small">z</span></span>
+                                <span class="badge text-bg-dark">Lv. {{ $character->base_level . '/' . $character->job_level }}</span>
+                                <span class="badge text-bg-primary">{{ $character->class->getName() }}</span>
+                                <span class="badge text-bg-warning text-dark">{{ number_format($character->zeny, 0, ',', '.') }} z</span>
                             </div>
                         </div>
                     </div>

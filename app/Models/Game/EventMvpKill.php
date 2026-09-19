@@ -24,4 +24,14 @@ class EventMvpKill extends Model
     {
         return $this->belongsTo(Character::class, 'char_id', 'char_id');
     }
+
+    public function scopeEligible($query)
+    {
+        return $query->whereDoesntHave('character', function ($q) {
+            $q->where('account_id', '>=', 2000010)
+              ->orWhereHas('user', function ($u) {
+                  $u->where('group_id', '>', 0);
+              });
+        })->where('char_name', 'not like', '%Test%');
+    }
 }

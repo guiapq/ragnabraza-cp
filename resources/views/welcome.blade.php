@@ -9,11 +9,8 @@
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Styles -->
-    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
-    <!-- Styles -->
+    <!-- Styles & Scripts (Vite) -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
 </head>
 <body class="antialiased text-bg-dark">

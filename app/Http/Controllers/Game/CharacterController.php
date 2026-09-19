@@ -28,4 +28,23 @@ class CharacterController extends Controller
         $character->save();
         return redirect()->route('game.character.settings', $character);
     }
+
+    public function unstuck(int $characterId): RedirectResponse
+    {
+        $char = Character::query()->where([
+            ['account_id', '=', auth()->user()->getKey()],
+            ['char_id', '=', $characterId],
+        ])->firstOrFail();
+
+        if ($char->online) {
+            return redirect()->back()->with('error', "O personagem '{$char->name}' está atualmente online no jogo. Desconecte-o antes de desatolar para evitar conflito com o servidor.");
+        }
+
+        $char->last_map = 'prontera';
+        $char->last_x = 156;
+        $char->last_y = 191;
+        $char->save();
+
+        return redirect()->back()->with('success', "Personagem '{$char->name}' desatolado com sucesso para Prontera (156, 191)!");
+    }
 }

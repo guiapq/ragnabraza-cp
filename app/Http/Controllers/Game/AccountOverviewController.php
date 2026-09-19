@@ -11,7 +11,16 @@ class AccountOverviewController extends Controller
 {
     public function viewAccountOverview(): View
     {
-        return view('game.overview');
+        $seed = 'default';
+        $randoFile = base_path('../.env.rando');
+        if (file_exists($randoFile)) {
+            $content = file_get_contents($randoFile);
+            if (preg_match('/^WORLD_SEED=(.*)$/m', $content, $matches)) {
+                $seed = trim($matches[1]);
+            }
+        }
+
+        return view('game.overview', compact('seed'));
     }
 
 }
