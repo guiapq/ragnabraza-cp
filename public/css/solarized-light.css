@@ -1,0 +1,314 @@
+/* Solarized Light Theme for RagnaRogue */
+:root {
+    --sol-base03: #002b36;
+    --sol-base02: #073642;
+    --sol-base01: #586e75;
+    --sol-base00: #657b83;
+    --sol-base0:  #839496;
+    --sol-base1:  #93a1a1;
+    --sol-base2:  #eee8d5;
+    --sol-base3:  #fdf6e3;
+    --sol-yellow: #b58900;
+    --sol-orange: #cb4b16;
+    --sol-red:    #dc322f;
+    --sol-magenta:#d33682;
+    --sol-violet: #6c71c4;
+    --sol-blue:   #268bd2;
+    --sol-cyan:   #2aa198;
+    --sol-green:  #859900;
+    --sol-border: #d3cbb7;
+}
+
+body {
+    background-color: var(--sol-base3) !important;
+    color: var(--sol-base02) !important;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Header & Navbar */
+.navbar, nav {
+    background-color: var(--sol-base2) !important;
+    border-bottom: 1px solid var(--sol-border) !important;
+}
+
+.navbar .navbar-brand,
+.navbar-dark .navbar-brand {
+    color: var(--sol-base03) !important;
+    font-weight: 800;
+}
+
+.navbar-nav .nav-link,
+.nav-link {
+    color: var(--sol-base01) !important;
+    font-weight: 600;
+}
+
+.navbar-nav .nav-link:hover,
+.nav-link:hover,
+.navbar-nav .nav-link.active,
+.nav-link.active {
+    color: var(--sol-blue) !important;
+}
+
+/* Cards & Panels */
+.card, .card.text-bg-dark, .card.bg-black {
+    background-color: var(--sol-base2) !important;
+    border: 1px solid var(--sol-border) !important;
+    color: var(--sol-base02) !important;
+    box-shadow: 0 1px 3px rgba(0, 43, 54, 0.08) !important;
+}
+
+.card-header,
+.card-header.bg-black,
+.card-header.bg-dark-subtle {
+    background-color: #e6dfc8 !important;
+    border-bottom: 1px solid var(--sol-border) !important;
+    color: var(--sol-base03) !important;
+    font-weight: 700;
+}
+
+.card-footer,
+.card-footer.bg-dark-subtle {
+    background-color: #e6dfc8 !important;
+    border-top: 1px solid var(--sol-border) !important;
+    color: var(--sol-base01) !important;
+}
+
+/* Hero / Banners */
+.hero-solarized {
+    background-color: var(--sol-base2) !important;
+    border-bottom: 2px solid var(--sol-border) !important;
+    color: var(--sol-base02) !important;
+}
+
+/* Text Hierarchy */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    color: var(--sol-base03) !important;
+    font-weight: 800;
+}
+
+.text-white, .text-light {
+    color: var(--sol-base03) !important;
+}
+
+.text-secondary,
+.text-secondary-emphasis,
+.text-gray-400,
+.text-gray-500 {
+    color: var(--sol-base01) !important;
+}
+
+.lead {
+    color: var(--sol-base00) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--sol-blue) !important;
+    border-color: var(--sol-blue) !important;
+    color: #ffffff !important;
+}
+.btn-primary:hover {
+    background-color: #1a74b0 !important;
+    border-color: #1a74b0 !important;
+}
+
+.btn-warning {
+    background-color: var(--sol-yellow) !important;
+    border-color: var(--sol-yellow) !important;
+    color: #ffffff !important;
+}
+.btn-warning:hover {
+    background-color: #9c7600 !important;
+    border-color: #9c7600 !important;
+}
+
+.btn-info {
+    background-color: var(--sol-cyan) !important;
+    border-color: var(--sol-cyan) !important;
+    color: #ffffff !important;
+}
+.btn-info:hover {
+    background-color: #21877f !important;
+    border-color: #21877f !important;
+}
+
+.btn-outline-info {
+    color: var(--sol-cyan) !important;
+    border-color: var(--sol-cyan) !important;
+    background-color: transparent !important;
+}
+.btn-outline-info:hover {
+    background-color: var(--sol-cyan) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-warning {
+    color: var(--sol-yellow) !important;
+    border-color: var(--sol-yellow) !important;
+    background-color: transparent !important;
+}
+.btn-outline-warning:hover {
+    background-color: var(--sol-yellow) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-light,
+.btn-outline-secondary {
+    color: var(--sol-base01) !important;
+    border-color: var(--sol-base1) !important;
+    background-color: var(--sol-base3) !important;
+}
+.btn-outline-light:hover,
+.btn-outline-secondary:hover {
+    background-color: var(--sol-base2) !important;
+    color: var(--sol-base03) !important;
+}
+
+/* Badges */
+.badge {
+    font-weight: 700;
+    border-radius: 4px;
+}
+
+.badge.text-bg-warning {
+    background-color: var(--sol-yellow) !important;
+    color: #ffffff !important;
+}
+
+.badge.text-bg-info {
+    background-color: var(--sol-cyan) !important;
+    color: #ffffff !important;
+}
+
+.badge.text-bg-success {
+    background-color: var(--sol-green) !important;
+    color: #ffffff !important;
+}
+
+.badge.text-bg-danger {
+    background-color: var(--sol-red) !important;
+    color: #ffffff !important;
+}
+
+.badge.text-bg-primary {
+    background-color: var(--sol-blue) !important;
+    color: #ffffff !important;
+}
+
+.badge.text-bg-secondary,
+.badge.text-bg-dark {
+    background-color: #ded7c3 !important;
+    color: var(--sol-base02) !important;
+    border: 1px solid var(--sol-border) !important;
+}
+
+/* Tables */
+.table,
+.table-dark {
+    --bs-table-bg: var(--sol-base2) !important;
+    --bs-table-striped-bg: #f4edd9 !important;
+    --bs-table-hover-bg: #e8e2ce !important;
+    --bs-table-border-color: var(--sol-border) !important;
+    --bs-table-color: var(--sol-base02) !important;
+    color: var(--sol-base02) !important;
+    border-color: var(--sol-border) !important;
+}
+
+.table thead,
+.table thead th,
+.table-dark thead th {
+    background-color: #e6dfc8 !important;
+    color: var(--sol-base03) !important;
+    border-bottom: 2px solid var(--sol-border) !important;
+    font-weight: 700;
+}
+
+.table-bordered,
+.table-bordered td,
+.table-bordered th {
+    border-color: var(--sol-border) !important;
+}
+
+/* Forms & Inputs */
+.form-control,
+.form-control.bg-black,
+.input-group-text,
+.input-group-text.bg-black {
+    background-color: var(--sol-base3) !important;
+    border-color: var(--sol-border) !important;
+    color: var(--sol-base03) !important;
+}
+
+.form-control:focus {
+    background-color: #ffffff !important;
+    border-color: var(--sol-blue) !important;
+    color: var(--sol-base03) !important;
+    box-shadow: 0 0 0 0.25rem rgba(38, 139, 210, 0.25) !important;
+}
+
+/* List Groups */
+.list-group-item,
+.list-group-item.bg-dark,
+.list-group-item.bg-black {
+    background-color: var(--sol-base2) !important;
+    color: var(--sol-base02) !important;
+    border-color: var(--sol-border) !important;
+}
+
+/* Modals */
+.modal-content,
+.modal-content.bg-dark {
+    background-color: var(--sol-base3) !important;
+    color: var(--sol-base02) !important;
+    border: 1px solid var(--sol-border) !important;
+    box-shadow: 0 10px 30px rgba(0, 43, 54, 0.2) !important;
+}
+
+.modal-header, .modal-footer {
+    background-color: var(--sol-base2) !important;
+    border-color: var(--sol-border) !important;
+}
+
+/* Borders & Dividers */
+hr,
+.border-secondary,
+.border-gray-800,
+.border-black {
+    border-color: var(--sol-border) !important;
+    opacity: 1 !important;
+}
+
+/* Code & Monospace */
+code, pre {
+    background-color: #e6dfc8 !important;
+    color: var(--sol-magenta) !important;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+}
+
+/* Specific Accent Colors */
+.text-warning, .text-amber-400 {
+    color: var(--sol-yellow) !important;
+}
+.text-danger {
+    color: var(--sol-red) !important;
+}
+.text-success, .text-emerald-400 {
+    color: var(--sol-green) !important;
+}
+.text-info {
+    color: var(--sol-cyan) !important;
+}
+.text-primary {
+    color: var(--sol-blue) !important;
+}
+
+/* Footer */
+footer, .bg-black {
+    background-color: var(--sol-base2) !important;
+    border-top: 1px solid var(--sol-border) !important;
+    color: var(--sol-base01) !important;
+}

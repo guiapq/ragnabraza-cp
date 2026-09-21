@@ -1,21 +1,20 @@
 <x-filament-panels::page>
-    <div class="space-y-6">
+    <div class="space-y-6" style="color: #073642;">
         {{-- Banner do Evento --}}
-        <div class="p-6 bg-gradient-to-r from-amber-950 via-gray-900 to-indigo-950 border border-amber-500/30 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="p-6 border rounded-2xl shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="background: linear-gradient(135deg, #fdf6e3 0%, #eee8d5 100%); border-color: #d3cbb7;">
             <div>
-                <span class="text-xs font-semibold tracking-wider text-amber-400 uppercase">Torneio Local de Convenção & Anime Fest</span>
-                <h2 class="text-2xl font-black text-white mt-1">
-                    Arena do Evento — Seed: <span class="text-amber-400 font-mono">{{ $this->getActiveSeed() }}</span>
+                <span class="text-xs font-semibold tracking-wider uppercase font-mono" style="color: #b58900;">Torneio Roguelike & Sprint 12H</span>
+                <h2 class="text-2xl font-black mt-1" style="color: #002b36;">
+                    Arena do Evento — Seed: <span class="font-mono" style="color: #b58900;">{{ $this->getActiveSeed() }}</span>
                 </h2>
-                <p class="text-sm text-gray-400 mt-1">
+                <p class="text-sm mt-1" style="color: #586e75;">
                     Ranking ao vivo dos jogadores na run roguelike solo. Registros computados via telemetria nativa do rAthena.
                 </p>
             </div>
 
             <div class="flex items-center gap-3">
-                <a href="/scoreboard" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-gray-950 font-black text-sm rounded-xl shadow-lg transition-all duration-200 hover:scale-105">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    Modo Telão (Kiosk TV)
+                <a href="/scoreboard" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 font-black text-sm rounded-xl shadow transition" style="background-color: #b58900; color: #ffffff;">
+                    Modo Telão (Placar Público)
                 </a>
             </div>
         </div>
@@ -23,20 +22,19 @@
         {{-- Grid com as Tabelas de Speedrun e MVP Bounty --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Coluna 1: Speedrun 99 --}}
-            <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
-                <div class="p-5 bg-gray-800/60 border-b border-gray-700/60 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <span class="text-xl">⚡</span>
-                        <h3 class="font-bold text-white text-base">Speedrun 1-99 (Menor Tempo)</h3>
+            <div class="border rounded-2xl overflow-hidden shadow-sm" style="background-color: #fdf6e3; border-color: #d3cbb7;">
+                <div class="p-5 border-b flex items-center justify-between" style="background-color: #eee8d5; border-color: #d3cbb7;">
+                    <div>
+                        <h3 class="font-bold text-base" style="color: #002b36;">Speedrun 1-99 (Menor Tempo)</h3>
                     </div>
-                    <span class="text-xs font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2.5 py-1 rounded-full">
+                    <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-full border" style="background-color: #fdf6e3; color: #859900; border-color: #859900;">
                         {{ $this->getSpeedruns()->count() }} no Hall
                     </span>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-300">
-                        <thead class="bg-gray-800/40 text-xs uppercase font-bold text-gray-400 border-b border-gray-800">
+                    <table class="w-full text-left text-sm" style="color: #073642;">
+                        <thead class="text-xs uppercase font-bold border-b" style="background-color: #eee8d5; color: #002b36; border-color: #d3cbb7;">
                             <tr>
                                 <th class="px-5 py-3">Pos</th>
                                 <th class="px-5 py-3">Personagem</th>
@@ -44,24 +42,20 @@
                                 <th class="px-5 py-3">Conquista</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-800">
+                        <tbody class="divide-y" style="border-color: #d3cbb7;">
                             @forelse($this->getSpeedruns() as $idx => $run)
-                                <tr class="hover:bg-gray-800/40 transition-colors">
-                                    <td class="px-5 py-3 font-mono font-bold">
-                                        @if($idx === 0) 🥇 1º
-                                        @elseif($idx === 1) 🥈 2º
-                                        @elseif($idx === 2) 🥉 3º
-                                        @else {{ $idx + 1 }}º
-                                        @endif
+                                <tr class="hover:bg-amber-50 transition">
+                                    <td class="px-5 py-3 font-mono font-bold" style="color: {{ $idx === 0 ? '#b58900' : ($idx === 1 ? '#268bd2' : ($idx === 2 ? '#cb4b16' : '#657b83')) }};">
+                                        {{ $idx + 1 }}º
                                     </td>
-                                    <td class="px-5 py-3 font-bold text-white">{{ $run->name }}</td>
-                                    <td class="px-5 py-3 font-mono text-amber-400 font-black">{{ $run->formatted_time }}</td>
-                                    <td class="px-5 py-3 text-xs text-gray-400">{{ $run->achieved_at?->format('H:i:s') }}</td>
+                                    <td class="px-5 py-3 font-bold" style="color: #002b36;">{{ $run->name }}</td>
+                                    <td class="px-5 py-3 font-mono font-black" style="color: #859900;">{{ $run->formatted_time }}</td>
+                                    <td class="px-5 py-3 text-xs text-gray-500">{{ $run->achieved_at?->format('H:i:s') }}</td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="4" class="px-5 py-8 text-center text-gray-500 text-sm">
-                                        Nenhum jogador alcançou o nível 99 nesta rodada ainda. Seja o primeiro!
+                                        Nenhum jogador alcançou o nível 99 nesta rodada ainda.
                                     </td>
                                 </tr>
                             @endforelse
@@ -71,50 +65,45 @@
             </div>
 
             {{-- Coluna 2: MVP Bounty Hunter --}}
-            <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
-                <div class="p-5 bg-gray-800/60 border-b border-gray-700/60 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <span class="text-xl">🏆</span>
-                        <h3 class="font-bold text-white text-base">MVP Bounty Hunters</h3>
+            <div class="border rounded-2xl overflow-hidden shadow-sm" style="background-color: #fdf6e3; border-color: #d3cbb7;">
+                <div class="p-5 border-b flex items-center justify-between" style="background-color: #eee8d5; border-color: #d3cbb7;">
+                    <div>
+                        <h3 class="font-bold text-base" style="color: #002b36;">Caçadores de MVP (Bounty)</h3>
                     </div>
-                    <span class="text-xs font-mono text-amber-400 bg-amber-950/60 border border-amber-800/40 px-2.5 py-1 rounded-full">
+                    <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-full border" style="background-color: #fdf6e3; color: #dc322f; border-color: #dc322f;">
                         Top Caçadores
                     </span>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-300">
-                        <thead class="bg-gray-800/40 text-xs uppercase font-bold text-gray-400 border-b border-gray-800">
+                    <table class="w-full text-left text-sm" style="color: #073642;">
+                        <thead class="text-xs uppercase font-bold border-b" style="background-color: #eee8d5; color: #002b36; border-color: #d3cbb7;">
                             <tr>
                                 <th class="px-5 py-3">Pos</th>
                                 <th class="px-5 py-3">Caçador</th>
                                 <th class="px-5 py-3">Abates</th>
-                                <th class="px-5 py-3">Último Kill</th>
+                                <th class="px-5 py-3">Último Abate</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-800">
+                        <tbody class="divide-y" style="border-color: #d3cbb7;">
                             @forelse($this->getMvpBounties() as $idx => $bounty)
-                                <tr class="hover:bg-gray-800/40 transition-colors">
-                                    <td class="px-5 py-3 font-mono font-bold">
-                                        @if($idx === 0) 👑 1º
-                                        @elseif($idx === 1) 🥈 2º
-                                        @elseif($idx === 2) 🥉 3º
-                                        @else {{ $idx + 1 }}º
-                                        @endif
+                                <tr class="hover:bg-amber-50 transition">
+                                    <td class="px-5 py-3 font-mono font-bold" style="color: {{ $idx === 0 ? '#dc322f' : '#657b83' }};">
+                                        {{ $idx + 1 }}º
                                     </td>
-                                    <td class="px-5 py-3 font-bold text-white">{{ $bounty->char_name }}</td>
-                                    <td class="px-5 py-3 font-mono text-emerald-400 font-bold">
+                                    <td class="px-5 py-3 font-bold" style="color: #002b36;">{{ $bounty->char_name }}</td>
+                                    <td class="px-5 py-3 font-mono font-bold" style="color: #dc322f;">
                                         {{ $bounty->total_kills }} MVP{{ $bounty->total_kills > 1 ? 's' : '' }}
-                                        <span class="text-xs text-gray-400 font-normal">({{ $bounty->distinct_mvps }} tipos)</span>
+                                        <span class="text-xs text-gray-500 font-normal">({{ $bounty->distinct_mvps }} tipos)</span>
                                     </td>
-                                    <td class="px-5 py-3 text-xs text-gray-400">
+                                    <td class="px-5 py-3 text-xs text-gray-500">
                                         {{ \Carbon\Carbon::parse($bounty->last_kill)->diffForHumans() }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="4" class="px-5 py-8 text-center text-gray-500 text-sm">
-                                        Nenhum MVP derrotado ainda. Os chefes estão dominando o mapa!
+                                        Nenhum MVP derrotado ainda.
                                     </td>
                                 </tr>
                             @endforelse
@@ -125,22 +114,19 @@
         </div>
 
         {{-- Feed dos Últimos Abates de MVP --}}
-        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
-            <div class="p-5 bg-gray-800/60 border-b border-gray-700/60 flex items-center justify-between">
-                <h3 class="font-bold text-white text-base">Últimos Abates de MVP na Rodada</h3>
-                <span class="text-xs text-gray-400">Tempo real</span>
+        <div class="border rounded-2xl overflow-hidden shadow-sm" style="background-color: #fdf6e3; border-color: #d3cbb7;">
+            <div class="p-5 border-b flex items-center justify-between" style="background-color: #eee8d5; border-color: #d3cbb7;">
+                <h3 class="font-bold text-base" style="color: #002b36;">Últimos Abates de MVP na Rodada</h3>
+                <span class="text-xs text-gray-500">Tempo real</span>
             </div>
 
-            <div class="divide-y divide-gray-800">
+            <div class="divide-y" style="border-color: #d3cbb7;">
                 @forelse($this->getRecentKills() as $kill)
-                    <div class="px-6 py-3.5 flex items-center justify-between text-sm hover:bg-gray-800/30 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <span class="p-2 bg-red-950/60 border border-red-800/40 rounded-lg text-red-400">💀</span>
-                            <div>
-                                <span class="font-bold text-white">{{ $kill->char_name }}</span>
-                                <span class="text-gray-400 text-xs">derrotou</span>
-                                <span class="font-bold text-amber-400">{{ $kill->mob_name }}</span>
-                            </div>
+                    <div class="px-6 py-3.5 flex items-center justify-between text-sm hover:bg-amber-50 transition">
+                        <div>
+                            <span class="font-bold" style="color: #002b36;">{{ $kill->char_name }}</span>
+                            <span class="text-gray-500 text-xs">derrotou</span>
+                            <span class="font-bold font-mono" style="color: #cb4b16;">{{ $kill->mob_name }}</span>
                         </div>
                         <span class="text-xs text-gray-500 font-mono">{{ $kill->killed_at?->format('H:i:s') }}</span>
                     </div>

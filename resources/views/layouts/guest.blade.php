@@ -5,18 +5,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'RagnaRogue') }} &mdash; Acesso</title>
 
         <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
-
-        <!-- Styles -->
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
         @livewireStyles
-        @vite(['resources/js/app.js', 'resources/sass/app.scss'])
+        @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+        <link rel="stylesheet" href="{{ asset('css/solarized-light.css') }}">
+
+        <style>
+            body { background-color: var(--sol-base3, #fdf6e3) !important; }
+        </style>
     </head>
-    <body class="bg-light font-sans antialiased">
+    <body class="font-sans antialiased">
         {{ $slot }}
     </body>
 </html>

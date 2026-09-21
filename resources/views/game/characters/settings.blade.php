@@ -21,11 +21,11 @@
                             <h3 class="m-0 fw-bold">{{ $character->name }}</h3>
                             <div class="my-2">
                                 @if(auth()->user()->group_id >= 99)
-                                    <span class="badge bg-danger text-white">🛡️ Staff GM</span>
+                                    <span class="badge bg-danger text-white">Staff GM</span>
                                 @elseif(auth()->user()->vip_time > 0)
-                                    <span class="badge bg-warning text-dark">⭐ VIP</span>
+                                    <span class="badge bg-warning text-dark">VIP</span>
                                 @else
-                                    <span class="badge bg-secondary text-white">⚔️ Aventureiro</span>
+                                    <span class="badge bg-secondary text-white">Aventureiro</span>
                                 @endif
                             </div>
                             <div>

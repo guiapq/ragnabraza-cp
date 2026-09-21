@@ -1,13 +1,11 @@
-<div class="container">
-    <div class="row justify-content-center my-5">
-        <div class="col-sm-12 col-md-8 col-lg-5 my-4">
-            <div>
-                {{ $logo }}
-            </div>
+<div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="w-100" style="max-width: 440px;">
+        <div class="text-center mb-4">
+            {{ $logo }}
+        </div>
 
-            <div class="card shadow-sm px-1 mx-4">
-                {{ $slot }}
-            </div>
+        <div class="card shadow border-0" style="background-color: var(--sol-base2, #eee8d5); border-radius: 0.5rem;">
+            {{ $slot }}
         </div>
     </div>
 </div>

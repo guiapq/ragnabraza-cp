@@ -36,11 +36,30 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::authenticateUsing(function (Request $request) {
             $login = $request->input('email');
+            $password = $request->input('password');
+
             $user = \App\Models\User::where('email', $login)
                 ->orWhere('userid', $login)
                 ->first();
 
-            if ($user && app('hash')->check($request->input('password'), $user->getAuthPassword())) {
+            if (!$user) {
+                return null;
+            }
+
+            $stored = $user->getAuthPassword();
+
+            // rAthena plaintext (use_MD5_passwords: no — default)
+            if ($stored === $password) {
+                return $user;
+            }
+
+            // rAthena MD5 (use_MD5_passwords: yes)
+            if ($stored === md5($password)) {
+                return $user;
+            }
+
+            // Laravel bcrypt fallback (caso a senha tenha sido migrada)
+            if (app('hash')->needsRehash($stored) === false && app('hash')->check($password, $stored)) {
                 return $user;
             }
 

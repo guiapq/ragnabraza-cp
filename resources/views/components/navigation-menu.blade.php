@@ -21,18 +21,21 @@
             <!-- Left Side Of Navbar -->
             <ul class="navbar-nav me-auto align-items-center gap-1">
                 <x-nav-link href="{{ route('game.overview') }}" :active="request()->routeIs('game.overview')">
-                    👤 {{ __('Personagens') }}
+                    {{ __('Personagens') }}
                 </x-nav-link>
                 <x-nav-link href="{{ route('event.scoreboard') }}" :active="request()->routeIs('event.scoreboard')">
-                    🏆 {{ __('Placar ao Vivo') }}
+                    {{ __('Placar ao Vivo') }}
+                </x-nav-link>
+                <x-nav-link href="{{ route('market.index') }}" :active="request()->routeIs('market.*')">
+                    {{ __('Mercado & Itens') }}
                 </x-nav-link>
                 <x-nav-link href="{{ route('game.online-players') }}" :active="request()->routeIs('game.online-players')">
-                    🟢 {{ __('Quem está Online') }}
+                    {{ __('Quem está Online') }}
                 </x-nav-link>
                 <li class="nav-item ms-lg-2">
                     <a class="btn btn-sm btn-primary fw-bold text-white d-inline-flex align-items-center gap-1 shadow-sm"
                        href="http://{{ request()->getHost() }}:8001" target="_blank" title="Abrir roBrowser em nova aba">
-                        🎮 {{ __('Jogar no Navegador') }}
+                        {{ __('Jogar no Navegador') }}
                     </a>
                 </li>
             </ul>
@@ -43,7 +46,7 @@
                     @if(auth()->user()->group_id >= 99)
                         <li class="nav-item">
                             <a class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" href="/admin">
-                                🛡️ Admin
+                                Admin
                             </a>
                         </li>
                     @endif
@@ -67,7 +70,7 @@
                             </x-dropdown-link>
 
                             <x-dropdown-link href="{{ route('event.scoreboard') }}">
-                                {{ __('🏆 Placar do Torneio') }}
+                                {{ __('Placar do Torneio') }}
                             </x-dropdown-link>
 
                             <hr class="dropdown-divider">

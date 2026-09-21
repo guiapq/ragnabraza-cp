@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Services\WorldDataService;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 
@@ -15,117 +16,159 @@ class WorldDatabase extends Page
 
     protected static string $view = 'filament.pages.world-database';
 
+    public string $activeTab = 'mobs'; // 'mobs', 'items', 'meta', 'routes'
     public string $search = '';
-    public string $selectedCategory = 'mobs';
+    public string $selectedRace = 'all';
+    public string $selectedElement = 'all';
+    public string $selectedTier = 'Lv 1–25';
+    public ?int $viewMobId = null;
+    public ?int $viewItemId = null;
 
-    public static array $RACES = [
-        0 => 'Formless',
-        1 => 'Undead',
-        2 => 'Brute',
-        3 => 'Plant',
-        4 => 'Insect',
-        5 => 'Fish',
-        6 => 'Demon',
-        7 => 'Demi-Human',
-        8 => 'Angel',
-        9 => 'Dragon',
-        10 => 'Player',
-        11 => 'Boss',
-        12 => 'Non-Boss',
-    ];
-
-    public static array $ELEMENTS = [
-        0 => 'Neutral',
-        1 => 'Water',
-        2 => 'Earth',
-        3 => 'Fire',
-        4 => 'Wind',
-        5 => 'Poison',
-        6 => 'Holy',
-        7 => 'Shadow',
-        8 => 'Ghost',
-        9 => 'Undead',
-    ];
-
-    public static function formatElement(int $element): string
+    public function mount(): void
     {
-        $level = max(1, intdiv($element, 20));
-        $type = $element % 20;
-        $name = self::$ELEMENTS[$type] ?? "Elem {$type}";
-        return "{$name} {$level}";
+        $this->activeTab = 'mobs';
+    }
+
+    public function setTab(string $tab): void
+    {
+        $this->activeTab = $tab;
+        $this->search = '';
+        $this->viewMobId = null;
+        $this->viewItemId = null;
+    }
+
+    public function selectMob(?int $id): void
+    {
+        $this->viewMobId = $id;
+    }
+
+    public function selectItem(?int $id): void
+    {
+        $this->viewItemId = $id;
+    }
+
+    public function getWorldData(): WorldDataService
+    {
+        return app(WorldDataService::class);
     }
 
     public function getActiveSeed(): string
     {
-        $randoFile = base_path('../.env.rando');
-        if (file_exists($randoFile)) {
-            $content = file_get_contents($randoFile);
-            if (preg_match('/^WORLD_SEED=(.*)$/m', $content, $matches)) {
-                return trim($matches[1]);
-            }
-        }
-        return 'default';
+        return $this->getWorldData()->getActiveSeed();
     }
 
     public function getMobs(): Collection
     {
-        $mobFile = base_path('game-data/db/re/mob_db.txt');
-        if (!file_exists($mobFile)) {
-            $mobFile = base_path('../data/db/re/mob_db.txt');
-        }
-
-        if (!file_exists($mobFile)) {
-            return collect();
-        }
-
+        $allMobs = $this->getWorldData()->getMobs();
+        $spawns = $this->getWorldData()->getMobSpawns()['mob_to_maps'] ?? [];
         $mobs = [];
-        $lines = file($mobFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-        foreach ($lines as $line) {
-            if (str_starts_with($line, '//') || empty(trim($line))) {
-                continue;
-            }
-
-            $cols = explode(',', $line);
-            if (count($cols) < 25) {
-                continue;
-            }
-
-            $id = $cols[0];
-            $name = $cols[3] !== '' ? $cols[3] : $cols[2];
-            $lv = $cols[4];
-            $hp = $cols[5];
-            $atk1 = $cols[10] ?? '0';
-            $atk2 = $cols[11] ?? '0';
-            $def = $cols[12] ?? '0';
-            $mdef = $cols[13] ?? '0';
-            $race = (int)($cols[23] ?? 0);
-            $element = (int)($cols[24] ?? 0);
-
+        foreach ($allMobs as $mob) {
             if ($this->search !== '') {
                 $s = strtolower($this->search);
-                if (!str_contains(strtolower($name), $s) && !str_contains($id, $s)) {
+                if (
+                    !str_contains(strtolower($mob['name']), $s) &&
+                    !str_contains((string)$mob['id'], $s)
+                ) {
                     continue;
                 }
             }
 
-            $mobs[] = [
-                'id' => $id,
-                'name' => $name,
-                'level' => $lv,
-                'hp' => number_format((int)$hp),
-                'atk' => "{$atk1}~{$atk2}",
-                'def' => $def,
-                'mdef' => $mdef,
-                'race' => self::$RACES[$race] ?? "Race {$race}",
-                'element' => self::formatElement($element),
-            ];
+            if ($this->selectedRace !== 'all' && (string)$mob['race_id'] !== $this->selectedRace) {
+                continue;
+            }
 
-            if (count($mobs) >= 50) {
+            $mobData = $mob;
+            $mobData['maps'] = $spawns[$mob['id']] ?? [];
+            $mobs[] = $mobData;
+
+            if (count($mobs) >= 60) {
                 break;
             }
         }
 
         return collect($mobs);
+    }
+
+    public function getItems(): Collection
+    {
+        $allItems = $this->getWorldData()->getItems();
+        $itemToMobs = $this->getWorldData()->getItemToMobs();
+        $shops = $this->getWorldData()->getNpcShops()['item_to_shops'] ?? [];
+
+        $items = [];
+
+        foreach ($allItems as $item) {
+            if ($this->search !== '') {
+                $s = strtolower($this->search);
+                if (
+                    !str_contains(strtolower($item['name']), $s) &&
+                    !str_contains(strtolower($item['aegis']), $s) &&
+                    !str_contains((string)$item['id'], $s)
+                ) {
+                    continue;
+                }
+            }
+
+            $itemData = $item;
+            $itemData['dropped_by_count'] = count($itemToMobs[$item['id']] ?? []);
+            $itemData['shops_count'] = count($shops[$item['id']] ?? []);
+            $items[] = $itemData;
+
+            if (count($items) >= 60) {
+                break;
+            }
+        }
+
+        return collect($items);
+    }
+
+    public function getSelectedMob(): ?array
+    {
+        if (!$this->viewMobId) {
+            return null;
+        }
+
+        $all = $this->getWorldData()->getMobs();
+        if (!isset($all[$this->viewMobId])) {
+            return null;
+        }
+
+        $mob = $all[$this->viewMobId];
+        $spawns = $this->getWorldData()->getMobSpawns()['mob_to_maps'] ?? [];
+        $mob['maps'] = $spawns[$this->viewMobId] ?? [];
+
+        return $mob;
+    }
+
+    public function getSelectedItem(): ?array
+    {
+        if (!$this->viewItemId) {
+            return null;
+        }
+
+        $all = $this->getWorldData()->getItems();
+        if (!isset($all[$this->viewItemId])) {
+            return null;
+        }
+
+        $item = $all[$this->viewItemId];
+        $itemToMobs = $this->getWorldData()->getItemToMobs();
+        $shops = $this->getWorldData()->getNpcShops()['item_to_shops'] ?? [];
+
+        $item['dropped_by'] = $itemToMobs[$this->viewItemId] ?? [];
+        $item['shops'] = $shops[$this->viewItemId] ?? [];
+
+        return $item;
+    }
+
+    public function getMetaAnalysis(): array
+    {
+        return $this->getWorldData()->getMetaAnalysis();
+    }
+
+    public function getExpRoutes(): array
+    {
+        return $this->getWorldData()->getExpRoutes();
     }
 }

@@ -1,15 +1,25 @@
-<div class="card text-bg-dark">
-
-    <img src="{{ asset('images/news-bg-test.png') }}" class="card-img" alt="...">
-    <div class="card-img-overlay d-flex flex-column justify-content-between" style="object-fit: cover;">
-        <h4>Support us 💜</h4>
-        <h5 class="card-title">By Donating, you: </h5>
-        <ul>
-            <li>Become a senior</li>
-            <li>Gains scrolls of productivity</li>
-            <li>Master Javascript</li>
-            <li>Learn Hello World with Rust</li>
+<div class="card shadow-sm mb-3">
+    <div class="card-header font-monospace fw-bold d-flex justify-content-between align-items-center">
+        <span>Guia Rápido do roBrowser</span>
+        <span class="badge text-bg-primary">HTML5 / WASM</span>
+    </div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-warning fw-bold">Como jogar no navegador:</h6>
+        <ul class="small ps-3 mb-3 text-secondary">
+            <li><strong>F1 a F9:</strong> Barra rápida de itens e habilidades</li>
+            <li><strong>Scroll do Mouse:</strong> Ajuste de zoom da câmera</li>
+            <li><strong>Botão Direito:</strong> Rotacionar o mapa</li>
+            <li><strong>Zero-Install:</strong> Sem necessidade de instalador executável</li>
         </ul>
-        <a href="#" class="btn btn-info">Click here to Donate!</a>
+
+        <div class="border-top pt-2 mt-2">
+            <small class="text-secondary d-block mb-2">Repositório oficial:</small>
+            <a href="https://github.com/guiapq/ragnarok-docker" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                guiapq/ragnarok-docker
+            </a>
+        </div>
     </div>
 </div>

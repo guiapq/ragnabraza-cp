@@ -1,202 +1,170 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="refresh" content="15">
-    <title>Torneio de Anime — Placar do Evento</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #090a0f;
-        }
-        .font-mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.95); }
-        }
-        .animate-pulse-slow {
-            animation: pulse-slow 2.5s infinite ease-in-out;
-        }
-    </style>
+
+    <title>Placar ao Vivo & Torneio — {{ config('app.name', 'RagnaRogue') }}</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Styles & Scripts (Vite) -->
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/solarized-light.css') }}">
 </head>
-<body class="text-gray-100 min-h-screen flex flex-col justify-between p-6 md:p-10 selection:bg-amber-500 selection:text-black">
+<body class="antialiased">
+<x-banner/>
+<x-navigation-menu/>
 
-    {{-- Topo / Header do Evento --}}
-    <header class="flex flex-col md:flex-row items-center justify-between border-b border-gray-800 pb-6 gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-gray-950 font-black text-2xl shadow-lg shadow-amber-500/20">
-                ⚔️
-            </div>
-            <div>
-                <div class="flex items-center gap-3">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-950/80 text-red-400 border border-red-800/60 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-                        AO VIVO NO EVENTO
-                    </span>
-                    <span class="text-xs font-mono text-gray-400">Auto-refresh 15s</span>
+<div class="container py-4">
+    {{-- Header do Torneio --}}
+    <div class="p-4 p-md-5 mb-4 rounded-3 shadow-sm hero-solarized" style="background: linear-gradient(135deg, #fdf6e3 0%, #eee8d5 60%, #e6dfc8 100%); border: 1px solid var(--sol-border);">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge text-bg-danger font-monospace text-uppercase">Ao Vivo no Evento</span>
+                    <span class="badge text-bg-warning font-monospace text-uppercase">Seed: {{ $seed }}</span>
+                    <small class="text-secondary font-monospace">Auto-refresh 15s</small>
                 </div>
-                <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">
-                    TORNEIO ROGUELIKE <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200">12H SPRINT</span>
+                <h1 class="display-6 fw-bold mb-2" style="color: #002b36;">
+                    Torneio Roguelike — Sprint 12 Horas
                 </h1>
+                <p class="lead mb-0 fs-6" style="color: #586e75;">
+                    Acompanhamento em tempo real da corrida para Base 99 e caça de MVPs da temporada atual.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="http://{{ request()->getHost() }}:8001" target="_blank" class="btn btn-warning fw-bold px-4 py-2 shadow-sm">
+                    Jogar no roBrowser
+                </a>
             </div>
         </div>
+    </div>
 
-        <div class="flex items-center gap-4">
-            <div class="text-right">
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Seed da Rodada</span>
-                <div class="text-xl font-black font-mono text-amber-400">{{ $seed }}</div>
-            </div>
-            <div class="h-10 w-px bg-gray-800"></div>
-            <a href="/admin" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold rounded-xl border border-gray-700 transition">
-                Painel Admin
-            </a>
-        </div>
-    </header>
-
-    {{-- Conteúdo Principal / Colunas da Arena --}}
-    <main class="my-8 grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1">
-        
-        {{-- Card Esquerda: Speedrun 99 --}}
-        <div class="bg-gray-900/60 backdrop-blur-md border border-gray-800/80 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden group hover:border-emerald-500/40 transition duration-500">
-            <div class="absolute -right-16 -top-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">⚡</span>
-                        <div>
-                            <h2 class="text-xl font-black tracking-wide text-white">SPEEDRUN 1-99</h2>
-                            <p class="text-xs text-gray-400">Menor tempo total de jogo até o nível máximo</p>
-                        </div>
+    {{-- Grid das duas arenas: Speedrun e MVP Bounty --}}
+    <div class="row g-4">
+        {{-- Coluna 1: Speedrun 1-99 --}}
+        <div class="col-lg-6 col-12">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <h4 class="h5 mb-0 fw-bold" style="color: #002b36;">Speedrun 1-99</h4>
+                        <small class="text-secondary">Menor tempo acumulado até atingir nível máximo</small>
                     </div>
-                    <span class="px-3 py-1 bg-emerald-950/60 text-emerald-400 text-xs font-mono font-bold rounded-xl border border-emerald-800/40">
+                    <span class="badge text-bg-success font-monospace">
                         {{ $speedruns->count() }} Finalistas
                     </span>
                 </div>
-
-                <div class="space-y-3">
-                    @forelse($speedruns as $idx => $run)
-                        <div class="flex items-center justify-between p-4 rounded-2xl bg-gray-800/40 border border-gray-700/40 hover:bg-gray-800/80 transition">
-                            <div class="flex items-center gap-4">
-                                <span class="w-8 text-center font-mono font-black text-lg {{ $idx === 0 ? 'text-yellow-400' : ($idx === 1 ? 'text-gray-300' : ($idx === 2 ? 'text-amber-600' : 'text-gray-500')) }}">
-                                    @if($idx === 0) 🥇
-                                    @elseif($idx === 1) 🥈
-                                    @elseif($idx === 2) 🥉
-                                    @else #{{ $idx + 1 }}
-                                    @endif
-                                </span>
-                                <div>
-                                    <div class="font-black text-white text-base">{{ $run->name }}</div>
-                                    <div class="text-xs text-gray-400">Concluído às {{ $run->achieved_at?->format('H:i:s') }}</div>
+                <div class="card-body p-3">
+                    <div class="list-group list-group-flush">
+                        @forelse($speedruns as $idx => $run)
+                            <div class="list-group-item px-2 py-3 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="font-mono font-bold fs-5 text-center" style="width: 35px; color: {{ $idx === 0 ? '#b58900' : ($idx === 1 ? '#268bd2' : ($idx === 2 ? '#cb4b16' : '#657b83')) }};">
+                                        {{ $idx + 1 }}º
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold fs-6" style="color: #002b36;">{{ $run->name }}</div>
+                                        <small class="text-secondary">
+                                            {{ $run->class_name ?? "Classe {$run->class}" }} • Concluído às {{ $run->achieved_at?->format('H:i:s') }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="font-monospace fw-bold fs-5 text-success">
+                                        {{ $run->formatted_time }}
+                                    </div>
+                                    <small class="text-secondary text-uppercase" style="font-size: 10px;">Tempo Total</small>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <div class="font-mono font-black text-emerald-400 text-lg tracking-wider">{{ $run->formatted_time }}</div>
-                                <div class="text-[10px] text-gray-500 uppercase font-semibold">Tempo de Run</div>
+                        @empty
+                            <div class="text-center py-5 text-secondary">
+                                <p class="mb-1 fw-bold">Nenhum jogador alcançou o nível 99 nesta seed ainda.</p>
+                                <small>A corrida está em andamento nos mapas do servidor.</small>
                             </div>
-                        </div>
-                    @empty
-                        <div class="py-16 text-center text-gray-500">
-                            <div class="text-4xl mb-3">🏃‍♂️💨</div>
-                            <p class="font-semibold text-sm">Nenhum jogador alcançou o 99 ainda.</p>
-                            <p class="text-xs text-gray-600 mt-1">A corrida está acontecendo nos mapas agora!</p>
-                        </div>
-                    @endforelse
+                        @endforelse
+                    </div>
                 </div>
-            </div>
-
-            <div class="mt-6 pt-4 border-t border-gray-800/60 flex items-center justify-between text-xs text-gray-500 font-mono">
-                <span>Critério: Tempo de criação até 99</span>
-                <span>Premiação ao final do evento</span>
+                <div class="card-footer py-2 text-secondary small d-flex justify-content-between">
+                    <span>Critério: Tempo total registrado</span>
+                    <span>Classificação oficial da seed</span>
+                </div>
             </div>
         </div>
 
-        {{-- Card Direita: MVP Bounty Hunters --}}
-        <div class="bg-gray-900/60 backdrop-blur-md border border-gray-800/80 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden group hover:border-amber-500/40 transition duration-500">
-            <div class="absolute -right-16 -top-16 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">🏆</span>
-                        <div>
-                            <h2 class="text-xl font-black tracking-wide text-white">MVP BOUNTY HUNTERS</h2>
-                            <p class="text-xs text-gray-400">Caçadores de Chefes e MVPs solo</p>
-                        </div>
+        {{-- Coluna 2: MVP Bounty Hunters --}}
+        <div class="col-lg-6 col-12">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <h4 class="h5 mb-0 fw-bold" style="color: #002b36;">Caçadores de MVP (Bounty)</h4>
+                        <small class="text-secondary">Pontuação por abates de chefes procedurais</small>
                     </div>
-                    <span class="px-3 py-1 bg-amber-950/60 text-amber-400 text-xs font-mono font-bold rounded-xl border border-amber-800/40">
+                    <span class="badge text-bg-danger font-monospace">
                         Top Caçadores
                     </span>
                 </div>
+                <div class="card-body p-3">
+                    <div class="list-group list-group-flush">
+                        @forelse($mvpBounties as $idx => $hunter)
+                            <div class="list-group-item px-2 py-3 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="font-mono font-bold fs-5 text-center" style="width: 35px; color: {{ $idx === 0 ? '#dc322f' : '#657b83' }};">
+                                        {{ $idx + 1 }}º
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold fs-6" style="color: #002b36;">{{ $hunter->char_name }}</div>
+                                        <small class="text-secondary">
+                                            {{ $hunter->distinct_mvps }} chefes distintos eliminados
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="font-monospace fw-bold fs-5 text-danger">
+                                        {{ $hunter->total_kills }}x
+                                    </div>
+                                    <small class="text-secondary text-uppercase" style="font-size: 10px;">Total Abates</small>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-5 text-secondary">
+                                <p class="mb-1 fw-bold">Nenhum MVP foi derrotado nesta seed ainda.</p>
+                                <small>Os chefes continuam patrulhando seus mapas.</small>
+                            </div>
+                        @endforelse
+                    </div>
 
-                <div class="space-y-3">
-                    @forelse($mvpBounties as $idx => $hunter)
-                        <div class="flex items-center justify-between p-4 rounded-2xl bg-gray-800/40 border border-gray-700/40 hover:bg-gray-800/80 transition">
-                            <div class="flex items-center gap-4">
-                                <span class="w-8 text-center font-mono font-black text-lg {{ $idx === 0 ? 'text-amber-400' : 'text-gray-500' }}">
-                                    @if($idx === 0) 👑
-                                    @else #{{ $idx + 1 }}
-                                    @endif
+                    {{-- Feed de Abates Recentes --}}
+                    <div class="mt-4 pt-3 border-top">
+                        <h6 class="text-secondary small fw-bold text-uppercase mb-2">Últimos Abates Registrados:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            @forelse($recentKills as $k)
+                                <span class="badge text-bg-secondary font-monospace p-2">
+                                    <strong class="text-danger">{{ $k->char_name }}</strong> derrotou <span class="text-warning">{{ $k->mob_name }}</span>
                                 </span>
-                                <div>
-                                    <div class="font-black text-white text-base">{{ $hunter->char_name }}</div>
-                                    <div class="text-xs text-gray-400">{{ $hunter->distinct_mvps }} MVPs distintos eliminados</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-mono font-black text-amber-400 text-lg">
-                                    {{ $hunter->total_kills }} <span class="text-xs font-normal text-gray-400">KILLS</span>
-                                </div>
-                                <div class="text-[10px] text-gray-500 uppercase font-semibold">Pontuação de Chefe</div>
-                            </div>
+                            @empty
+                                <small class="text-secondary italic">Aguardando primeiro registro de abate...</small>
+                            @endforelse
                         </div>
-                    @empty
-                        <div class="py-16 text-center text-gray-500">
-                            <div class="text-4xl mb-3">👹</div>
-                            <p class="font-semibold text-sm">Nenhum MVP foi derrotado nesta rodada.</p>
-                            <p class="text-xs text-gray-600 mt-1">Os chefes procedurais continuam intocados!</p>
-                        </div>
-                    @endforelse
+                    </div>
                 </div>
-            </div>
-
-            {{-- Feed de Abates Recentes --}}
-            <div class="mt-6 pt-4 border-t border-gray-800/60">
-                <span class="text-xs uppercase font-bold text-gray-400 mb-2 block tracking-wider">Últimos Abates</span>
-                <div class="flex flex-wrap gap-2">
-                    @forelse($recentKills as $k)
-                        <span class="px-3 py-1 bg-gray-800 rounded-lg text-xs border border-gray-700/60 flex items-center gap-1.5">
-                            <span class="text-red-400 font-bold">{{ $k->char_name }}</span>
-                            <span class="text-gray-500">derrotou</span>
-                            <span class="text-amber-300 font-semibold">{{ $k->mob_name }}</span>
-                        </span>
-                    @empty
-                        <span class="text-xs text-gray-600">Aguardando primeiro abate de MVP...</span>
-                    @endforelse
+                <div class="card-footer py-2 text-secondary small d-flex justify-content-between">
+                    <span>Premiação concedida ao fim da rodada</span>
+                    <span>Atualização contínua</span>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-    </main>
-
-    {{-- Rodapé --}}
-    <footer class="border-t border-gray-800/60 pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-2">
-        <div>
-            Ragnarok Docker v2 • Roguelike 12h Sprint & Tournament Engine
-        </div>
-        <div class="flex items-center gap-4">
-            <span>Rede Local do Evento</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span>Servidor Operacional</span>
-        </div>
-    </footer>
+<footer class="text-secondary py-4 text-center mt-5">
+    <div class="container">
+        <p class="mb-1" style="color: #073642; font-weight: 700;">RagnaRogue — Servidor Procedural Roguelike & roBrowser</p>
+        <small class="text-secondary">Placar de Torneio vinculado à Seed <code>{{ $seed }}</code></small>
+    </div>
+</footer>
 
 </body>
 </html>

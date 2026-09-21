@@ -1,38 +1,28 @@
-<div class="d-flex justify-content-between align-items-center">
-    <h2>Changelogs</h2>
-    <a class="btn btn-secondary" href="#"> See More</a>
-</div>
-<div class="changelogs">
-    <div class="changelog p-2 mb-2 text-bg-dark bg-black d-flex justify-content-between border-3 align-items-center" style="border-radius: 6px;">
-        <div class="d-flex flex-row align-items-center justify-content-start">
-            <div><span  class="badge text-bg-danger mx-1" style="min-width: 65px">Bugfix</span></div>
-            <div>Fixed n sei oq lá</div>
-        </div>
-        <div>3 mins ago</div>
+@props(['changelogs' => []])
+
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="h4 fw-bold mb-0">
+            Notas de Atualização (Changelog)
+        </h3>
+        <span class="badge text-bg-secondary font-monospace">v2.0 Estável</span>
     </div>
 
-    <div class="changelog p-2 mb-2 text-bg-dark bg-black d-flex justify-content-between border-3 align-items-center" style="border-radius: 6px;">
-        <div class="d-flex flex-row align-items-center justify-content-start">
-            <div><span class="badge text-bg-info mx-1"  style="min-width: 65px">Feature</span></div>
-            <div>NPC Roubadasso e novas adições</div>
-        </div>
-        <div>3 mins ago</div>
+    <div class="list-group list-group-flush border rounded shadow-sm overflow-hidden">
+        @forelse($changelogs as $log)
+            <div class="list-group-item p-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge {{ $log['badge_class'] ?? 'text-bg-info' }}" style="min-width: 85px;">
+                        {{ $log['badge'] }}
+                    </span>
+                    <span class="fs-6" style="color: #073642;">{{ $log['title'] }}</span>
+                </div>
+                <small class="text-secondary font-monospace text-nowrap">{{ $log['time'] }}</small>
+            </div>
+        @empty
+            <div class="list-group-item text-secondary p-3">
+                Nenhum changelog recente registrado.
+            </div>
+        @endforelse
     </div>
-
-    <div class="changelog p-2 mb-2 text-bg-dark bg-black d-flex justify-content-between border-3 align-items-center" style="border-radius: 6px;">
-        <div class="d-flex flex-row align-items-center justify-content-start">
-            <div><span class="badge text-bg-primary mx-1"  style="min-width: 65px">New</span></div>
-            <div>Fixed n sei oq lá</div>
-        </div>
-        <div>3 mins ago</div>
-    </div>
-
-    <div class="changelog p-2 mb-2 text-bg-dark bg-black d-flex justify-content-between border-3 align-items-center" style="border-radius: 6px;">
-        <div class="d-flex flex-row align-items-center justify-content-start">
-            <div><span class="badge text-bg-info mx-1"  style="min-width: 65px">Feature</span></div>
-            <div>NPC Roubadasso e novas adições</div>
-        </div>
-        <div>3 mins ago</div>
-    </div>
-
 </div>
