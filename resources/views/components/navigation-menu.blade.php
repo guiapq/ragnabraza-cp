@@ -29,6 +29,9 @@
                 <x-nav-link href="{{ route('market.index') }}" :active="request()->routeIs('market.*')">
                     {{ __('Mercado & Itens') }}
                 </x-nav-link>
+                <x-nav-link href="{{ route('mobdb.index') }}" :active="request()->routeIs('mobdb.*')">
+                    {{ __('Monstros') }}
+                </x-nav-link>
                 <x-nav-link href="{{ route('game.online-players') }}" :active="request()->routeIs('game.online-players')">
                     {{ __('Quem está Online') }}
                 </x-nav-link>

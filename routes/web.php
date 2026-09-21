@@ -143,6 +143,10 @@ Route::get('/', function (\App\Services\WorldDataService $worldData) {
 Route::get('/market', [\App\Http\Controllers\Game\MarketController::class, 'index'])->name('market.index');
 Route::get('/market/item/{id}', [\App\Http\Controllers\Game\MarketController::class, 'itemDetails'])->name('market.item');
 
+// Enciclopédia de Monstros
+Route::get('/mobdb', [\App\Http\Controllers\Game\MobDbController::class, 'index'])->name('mobdb.index');
+Route::get('/mobdb/{id}', [\App\Http\Controllers\Game\MobDbController::class, 'show'])->where('id', '[0-9]+')->name('mobdb.show');
+
 
 Route::get('/scoreboard', function () {
     $seed = 'default';
