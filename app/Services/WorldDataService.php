@@ -60,6 +60,17 @@ class WorldDataService
      */
     public function getActiveSeed(): string
     {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('world_metadata')) {
+                $dbSeed = DB::table('world_metadata')->where('key', 'active_seed')->value('value');
+                if ($dbSeed) {
+                    return trim($dbSeed);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fallback
+        }
+
         $paths = [
             base_path('../.env.rando'),
             base_path('.env.rando'),
@@ -124,20 +135,58 @@ class WorldDataService
     }
 
     /**
-     * Carrega e processa a tabela de itens (item_db.txt).
+     * Carrega e processa a tabela de itens (item_db no SQL ou item_db.txt).
      */
     public function getItems(): array
     {
         $seed = $this->getActiveSeed();
 
         return Cache::remember("world_items_{$seed}", 600, function () {
-            $itemDbPath = $this->getDataPath('db/re/item_db.txt') ?: $this->getDataPath('db/pre-re/item_db.txt');
+            $ptBr = $this->getPtBrTranslations();
+            $items = [];
+
+            // 1. Tentar carregar da tabela SQL item_db (padrão SQL rAthena)
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('item_db')) {
+                    $rows = DB::table('item_db')->get();
+                    if ($rows->isNotEmpty()) {
+                        foreach ($rows as $row) {
+                            $id = (int)$row->id;
+                            $origName = $row->name_japanese ?: $row->name_english;
+                            $name = $ptBr[$id] ?? $origName;
+                            $typeCode = (int)$row->type;
+
+                            $items[$id] = [
+                                'id' => $id,
+                                'aegis' => $row->name_english,
+                                'name' => $name,
+                                'original_name' => $origName,
+                                'type_id' => $typeCode,
+                                'type' => self::ITEM_TYPES[$typeCode] ?? 'Outros',
+                                'buy' => (int)($row->price_buy ?? 0),
+                                'sell' => (int)($row->price_sell ?? 0),
+                                'weight' => ((int)$row->weight) / 10,
+                                'atk' => (int)($row->attack ?? 0),
+                                'def' => (int)($row->defence ?? 0),
+                                'slots' => (int)($row->slots ?? 0),
+                                'script' => $row->script ?? '',
+                                'sprite_url' => "https://static.divine-pride.net/images/items/item/{$id}.png",
+                                'divine_url' => "https://www.divine-pride.net/database/item/{$id}",
+                            ];
+                        }
+                        return $items;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // fallback
+            }
+
+            // 2. Fallback TXT (priorizando pre-re procedural)
+            $itemDbPath = $this->getDataPath('db/pre-re/item_db.txt') ?: $this->getDataPath('db/re/item_db.txt');
             if (!$itemDbPath || !file_exists($itemDbPath)) {
                 return [];
             }
 
-            $ptBr = $this->getPtBrTranslations();
-            $items = [];
             $lines = file($itemDbPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
             foreach ($lines as $line) {
@@ -192,20 +241,102 @@ class WorldDataService
     }
 
     /**
-     * Carrega e processa a tabela de monstros (mob_db.txt) e seus drops.
+     * Carrega e processa a tabela de monstros (mob_db no SQL ou mob_db.txt) e seus drops.
      */
     public function getMobs(): array
     {
         $seed = $this->getActiveSeed();
 
         return Cache::remember("world_mobs_{$seed}", 600, function () {
-            $mobDbPath = $this->getDataPath('db/re/mob_db.txt') ?: $this->getDataPath('db/pre-re/mob_db.txt');
+            $items = $this->getItems();
+            $mobs = [];
+
+            // 1. Tentar carregar da tabela SQL mob_db (padrão SQL rAthena)
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('mob_db')) {
+                    $rows = DB::table('mob_db')->get();
+                    if ($rows->isNotEmpty()) {
+                        foreach ($rows as $row) {
+                            $id = (int)$row->ID;
+                            $name = trim(!empty($row->iName) ? $row->iName : $row->kName);
+                            $elemCode = (int)$row->Element;
+                            $elemType = $elemCode % 20;
+                            $elemLv = max(1, intdiv($elemCode, 20));
+                            $elemName = (self::ELEMENTS[$elemType] ?? "Elem {$elemType}") . " {$elemLv}";
+
+                            $drops = [];
+                            for ($i = 1; $i <= 9; $i++) {
+                                $dropId = (int)($row->{"Drop{$i}id"} ?? 0);
+                                $dropRate = (int)($row->{"Drop{$i}per"} ?? 0);
+                                if ($dropId > 0 && $dropRate > 0) {
+                                    $drops[] = [
+                                        'item_id' => $dropId,
+                                        'item_name' => $items[$dropId]['name'] ?? "Item #{$dropId}",
+                                        'rate_raw' => $dropRate,
+                                        'rate_percent' => max(0.01, round($dropRate / 100, 2)),
+                                        'sprite_url' => "https://static.divine-pride.net/images/items/item/{$dropId}.png",
+                                    ];
+                                }
+                            }
+                            $cardId = (int)($row->DropCardid ?? 0);
+                            $cardRate = (int)($row->DropCardper ?? 0);
+                            if ($cardId > 0 && $cardRate > 0) {
+                                $drops[] = [
+                                    'item_id' => $cardId,
+                                    'item_name' => $items[$cardId]['name'] ?? "Item #{$cardId}",
+                                    'rate_raw' => $cardRate,
+                                    'rate_percent' => max(0.01, round($cardRate / 100, 2)),
+                                    'sprite_url' => "https://static.divine-pride.net/images/items/item/{$cardId}.png",
+                                    'is_card' => true,
+                                ];
+                            }
+                            for ($i = 1; $i <= 3; $i++) {
+                                $mvpId = (int)($row->{"MVP{$i}id"} ?? 0);
+                                $mvpRate = (int)($row->{"MVP{$i}per"} ?? 0);
+                                if ($mvpId > 0 && $mvpRate > 0) {
+                                    $drops[] = [
+                                        'item_id' => $mvpId,
+                                        'item_name' => $items[$mvpId]['name'] ?? "Item #{$mvpId}",
+                                        'rate_raw' => $mvpRate,
+                                        'rate_percent' => max(0.01, round($mvpRate / 100, 2)),
+                                        'sprite_url' => "https://static.divine-pride.net/images/items/item/{$mvpId}.png",
+                                        'is_mvp' => true,
+                                    ];
+                                }
+                            }
+
+                            $mobs[$id] = [
+                                'id' => $id,
+                                'name' => $name,
+                                'level' => (int)$row->LV,
+                                'hp' => (int)$row->HP,
+                                'exp' => (int)$row->EXP,
+                                'jexp' => (int)$row->JEXP,
+                                'atk' => "{$row->ATK1}~{$row->ATK2}",
+                                'def' => (int)$row->DEF,
+                                'mdef' => (int)$row->MDEF,
+                                'race_id' => (int)$row->Race,
+                                'race' => self::RACES[(int)$row->Race] ?? "Race {$row->Race}",
+                                'element_code' => $elemCode,
+                                'element' => $elemName,
+                                'drops' => $drops,
+                                'sprite_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
+                                'divine_url' => "https://www.divine-pride.net/database/monster/{$id}",
+                            ];
+                        }
+                        return $mobs;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // fallback
+            }
+
+            // 2. Fallback TXT (priorizando pre-re procedural)
+            $mobDbPath = $this->getDataPath('db/pre-re/mob_db.txt') ?: $this->getDataPath('db/re/mob_db.txt');
             if (!$mobDbPath || !file_exists($mobDbPath)) {
                 return [];
             }
 
-            $items = $this->getItems();
-            $mobs = [];
             $lines = file($mobDbPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
             foreach ($lines as $line) {

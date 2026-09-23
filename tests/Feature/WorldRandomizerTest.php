@@ -96,3 +96,27 @@ test('personagens de teste foram gerados com level 99 e classe correspondente', 
         expect($char->zeny)->toBeGreaterThanOrEqual(50000);
     }
 });
+
+test('WorldDataService carrega itens e monstros diretamente do modo SQL', function () {
+    $service = app(\App\Services\WorldDataService::class);
+    $activeSeed = $service->getActiveSeed();
+    expect($activeSeed)->not->toBeEmpty();
+
+    $items = $service->getItems();
+    expect(count($items))->toBeGreaterThan(500);
+
+    $mobs = $service->getMobs();
+    expect(count($mobs))->toBeGreaterThan(300);
+
+    // Monstro Poring (1002) deve possuir drops sincronizados
+    expect($mobs[1002] ?? null)->not->toBeNull();
+    expect(count($mobs[1002]['drops']))->toBeGreaterThan(0);
+});
+
+test('migration de seed do mundo foi registrada no banco de dados', function () {
+    $seedMigration = DB::table('migrations')
+        ->where('migration', 'like', '%_seed_world_%')
+        ->exists();
+
+    expect($seedMigration)->toBeTrue();
+});
