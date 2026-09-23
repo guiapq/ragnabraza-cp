@@ -99,15 +99,15 @@
                 <div class="col-md-4 d-flex flex-column align-items-center justify-content-center p-4"
                      style="background:linear-gradient(135deg,#fdf6e3,#eee8d5);border-right:1px solid var(--sol-border);">
                     <img
-                        src="{{ $mob['sprite_url'] ?? ('https://static.divine-pride.net/images/mobs/' . $mob['id'] . '.gif') }}"
+                        src="{{ $mob['sprite_url'] ?? ('https://static.divine-pride.net/images/mobs/png/' . $mob['id'] . '.png') }}"
                         alt="{{ $mob['name'] }}"
                         class="mob-sprite-lg mb-3"
-                        onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $mob['icon_url'] ?? ('https://static.divine-pride.net/images/mobs/png/' . $mob['id'] . '.png') }}';}else{this.style.display='none';this.nextElementSibling.style.display='block';}">
+                        onload="if(this.naturalWidth === 57 && this.naturalHeight === 57){this.src='https://static.divine-pride.net/images/mobs/png/{{ $mob['id'] }}.png';}"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
                     <div style="display:none;font-size:4rem;color:var(--sol-base1);">?</div>
 
-                    <h1 class="fw-bold text-center mb-1 d-flex align-items-center justify-content-center gap-2" style="font-size:1.4rem;color:var(--sol-base02);">
-                        <img src="{{ $mob['icon_url'] ?? ('https://static.divine-pride.net/images/mobs/png/' . $mob['id'] . '.png') }}" width="28" height="28" alt="" style="image-rendering: pixelated; object-fit: contain;" onerror="this.style.display='none'">
-                        <span>{{ $mob['name'] }}</span>
+                    <h1 class="fw-bold text-center mb-1" style="font-size:1.4rem;color:var(--sol-base02);">
+                        {{ $mob['name'] }}
                     </h1>
                     <div class="text-muted small mb-3" style="color:var(--sol-base1)!important;">
                         ID #{{ $mob['id'] }}

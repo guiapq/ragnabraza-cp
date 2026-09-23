@@ -133,7 +133,7 @@
                         @if($selectedMob = $this->getSelectedMob())
                             <div class="border rounded-2xl p-5 shadow-sm sticky top-4 space-y-4" style="background-color: #fdf6e3; border-color: #d3cbb7;">
                                 <div class="flex items-center gap-3 border-b pb-4" style="border-color: #d3cbb7;">
-                                    <img src="{{ $selectedMob['icon_url'] ?? $selectedMob['sprite_url'] }}" width="48" height="48" alt="" style="image-rendering: pixelated; object-fit: contain;" class="rounded-xl p-1 border" style="background-color: #eee8d5; border-color: #d3cbb7;" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $selectedMob['sprite_url'] }}';}else{this.src='https://static.divine-pride.net/images/mobs/1002.gif';}">
+                                    <img src="{{ $selectedMob['icon_url'] ?? $selectedMob['sprite_url'] }}" width="48" height="48" alt="" style="image-rendering: pixelated; object-fit: contain;" class="rounded-xl p-1 border" style="background-color: #eee8d5; border-color: #d3cbb7;" onload="if(this.naturalWidth === 57 && this.naturalHeight === 57){this.src='https://static.divine-pride.net/images/mobs/png/1002.png';}" onerror="this.src='https://static.divine-pride.net/images/mobs/png/1002.png';">
                                     <div>
                                         <h3 class="text-lg font-black" style="color: #002b36;">{{ $selectedMob['name'] }}</h3>
                                         <div class="text-xs font-mono text-gray-500">

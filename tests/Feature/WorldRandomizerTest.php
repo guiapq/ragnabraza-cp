@@ -203,9 +203,10 @@ test('WorldDataService fornece icones e sprites de monstros a partir do divine-p
     $poring = $mobs[1002] ?? null;
     expect($poring)->not->toBeNull();
 
-    // Valida estrutura de URLs do Divine-Pride para monstros
+    // Valida estrutura de URLs do Divine-Pride para monstros (usando PNG autêntico para evitar o placeholder CPakEx)
     expect($poring['icon_url'])->toBe("https://static.divine-pride.net/images/mobs/png/1002.png");
-    expect($poring['sprite_url'])->toBe("https://static.divine-pride.net/images/mobs/1002.gif");
+    expect($poring['sprite_url'])->toBe("https://static.divine-pride.net/images/mobs/png/1002.png");
+    expect($poring['anim_url'])->toBe("https://static.divine-pride.net/images/mobs/1002.gif");
     expect($poring['divine_url'])->toBe("https://www.divine-pride.net/database/monster/1002");
 
     // Valida que o índice de drops para mercado também propaga icon_url

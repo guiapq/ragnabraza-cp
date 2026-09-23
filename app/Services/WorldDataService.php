@@ -267,7 +267,7 @@ class WorldDataService
                                 'is_boss' => (bool)($mode & 0x0020),
                                 'drops' => $drops,
                                 'icon_url' => "https://static.divine-pride.net/images/mobs/png/{$id}.png",
-                                'sprite_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
+                                'sprite_url' => "https://static.divine-pride.net/images/mobs/png/{$id}.png",
                                 'anim_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
                                 'divine_url' => "https://www.divine-pride.net/database/monster/{$id}",
                             ];
