@@ -84,7 +84,11 @@ class MobDbController extends Controller
 
         $mob    = $mobs[$id];
         $spawns = $this->worldData->getMobSpawns();
-        $maps   = $spawns[$id] ?? [];
+        $maps   = $spawns['mob_to_maps'][$id] ?? ($spawns[$id] ?? []);
+        $mapCounts = [];
+        foreach ($maps as $mapName) {
+            $mapCounts[$mapName] = $spawns['map_to_mobs'][$mapName][$id] ?? 1;
+        }
 
         // Ordenar drops: maior rate primeiro
         usort($mob['drops'], fn($a, $b) => $b['rate_percent'] <=> $a['rate_percent']);
@@ -92,6 +96,7 @@ class MobDbController extends Controller
         return view('mobdb.show', [
             'mob'        => $mob,
             'maps'       => $maps,
+            'mapCounts'  => $mapCounts,
             'activeSeed' => $this->worldData->getActiveSeed(),
         ]);
     }

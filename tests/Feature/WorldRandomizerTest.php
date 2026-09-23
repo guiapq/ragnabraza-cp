@@ -194,3 +194,56 @@ test('atributos de combate dos monstros (HP, ATK, DEF) foram randomizados a part
 
     expect($invalidStats)->toBe(0);
 });
+
+test('WorldDataService fornece icones e sprites de monstros a partir do divine-pride', function () {
+    $service = app(\App\Services\WorldDataService::class);
+    $mobs = $service->getMobs();
+
+    expect($mobs)->not->toBeEmpty();
+    $poring = $mobs[1002] ?? null;
+    expect($poring)->not->toBeNull();
+
+    // Valida estrutura de URLs do Divine-Pride para monstros
+    expect($poring['icon_url'])->toBe("https://static.divine-pride.net/images/mobs/png/1002.png");
+    expect($poring['sprite_url'])->toBe("https://static.divine-pride.net/images/mobs/1002.gif");
+    expect($poring['divine_url'])->toBe("https://www.divine-pride.net/database/monster/1002");
+
+    // Valida que o índice de drops para mercado também propaga icon_url
+    $itemToMobs = $service->getItemToMobs();
+    $firstDropItem = reset($itemToMobs);
+    expect($firstDropItem)->toBeArray();
+    expect($firstDropItem[0])->toHaveKey('icon_url');
+    expect($firstDropItem[0]['icon_url'])->toStartWith('https://static.divine-pride.net/images/mobs/png/');
+});
+
+test('pagina /mobdb/{id} exibe comportamentos decodificados, mapas de spawn e links para o mercado', function () {
+    // 1004 = Hornet (possui drops e spawns conhecidos)
+    $response = $this->get('/mobdb/1004');
+    $response->assertStatus(200);
+
+    // Valida ícone do divine-pride
+    $response->assertSee('https://static.divine-pride.net/images/mobs/png/1004.png');
+
+    // Valida comportamento/IA decodificado
+    $response->assertSee('Comportamento & IA', false);
+
+    // Valida mapas de spawn com contagem
+    $response->assertSee('Mapas de Spawn', false);
+    $response->assertSee('mjolnir_');
+
+    // Valida links bidirecionais apontando para o mercado
+    $response->assertSee('/market?q=');
+});
+
+test('pagina /market aponta para /mobdb/{mob_id} com icone do divine-pride para monstros que dropam o item', function () {
+    // Busca item 501 (Red Potion) ou 909 (Jellopy)
+    $response = $this->get('/market?q=909');
+    $response->assertStatus(200);
+
+    // Valida link para /mobdb/
+    $response->assertSee('/mobdb/');
+
+    // Valida presença de ícones de monstro do divine pride
+    $response->assertSee('https://static.divine-pride.net/images/mobs/png/');
+});
+

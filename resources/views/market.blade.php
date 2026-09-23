@@ -185,15 +185,18 @@
                                         Drop Procedural da Seed ({{ count($item['dropped_by']) }} monstros)
                                     </h6>
                                     <div class="d-flex flex-wrap gap-1">
-                                        @foreach(array_slice($item['dropped_by'], 0, 6) as $dropMob)
-                                            <span class="badge text-bg-secondary d-inline-flex align-items-center gap-1">
-                                                <img src="{{ $dropMob['sprite_url'] }}" width="16" height="16" alt="" style="image-rendering: pixelated;" onerror="this.style.display='none'">
+                                        @foreach(array_slice($item['dropped_by'], 0, 8) as $dropMob)
+                                            <a href="{{ route('mobdb.show', $dropMob['mob_id']) }}"
+                                               class="badge text-bg-secondary text-decoration-none d-inline-flex align-items-center gap-1"
+                                               style="transition: all .15s ease;"
+                                               title="Ver ficha do monstro {{ $dropMob['mob_name'] }} na Enciclopédia">
+                                                <img src="{{ $dropMob['icon_url'] ?? ('https://static.divine-pride.net/images/mobs/png/' . $dropMob['mob_id'] . '.png') }}" width="16" height="16" alt="" style="image-rendering: pixelated; object-fit: contain;" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $dropMob['sprite_url'] }}';}else{this.style.display='none';}">
                                                 <span style="color: #002b36;">{{ $dropMob['mob_name'] }}</span>
                                                 <span class="text-success font-monospace">({{ $dropMob['rate_percent'] }}%)</span>
-                                            </span>
+                                            </a>
                                         @endforeach
-                                        @if(count($item['dropped_by']) > 6)
-                                            <span class="badge text-bg-secondary">+{{ count($item['dropped_by']) - 6 }} outros</span>
+                                        @if(count($item['dropped_by']) > 8)
+                                            <span class="badge text-bg-secondary">+{{ count($item['dropped_by']) - 8 }} outros</span>
                                         @endif
                                     </div>
                                 </div>
@@ -218,6 +221,33 @@
         <small class="text-secondary">Dados extraídos deterministicamente da Seed <code>{{ $activeSeed }}</code></small>
     </div>
 </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.querySelector('form[action="{{ route('market.index') }}"]');
+    if (!searchForm) return;
+
+    const searchInput = searchForm.querySelector('input[name="q"]');
+    if (!searchInput) return;
+
+    let debounceTimer = null;
+
+    // Focar e colocar o cursor no final do texto ao carregar
+    if (searchInput.value) {
+        searchInput.focus();
+        const len = searchInput.value.length;
+        searchInput.setSelectionRange(len, len);
+    }
+
+    // Busca reativa com debounce de 450ms
+    searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+            searchForm.submit();
+        }, 450);
+    });
+});
+</script>
 
 </body>
 </html>

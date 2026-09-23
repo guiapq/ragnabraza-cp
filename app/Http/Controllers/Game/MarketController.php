@@ -77,10 +77,13 @@ class MarketController extends Controller
     }
 
     /**
-     * Endpoint JSON para detalhes de um item específico (para modais/autocomplete).
+     * Detalhes de um item específico: redireciona navegadores para o mercado filtrado ou responde JSON para APIs.
      */
-    public function itemDetails(int $id): JsonResponse
+    public function itemDetails(Request $request, int $id)
     {
+        if (!$request->wantsJson() && !$request->ajax()) {
+            return redirect()->route('market.index', ['q' => $id]);
+        }
         $items = $this->worldData->getItems();
         if (!isset($items[$id])) {
             return response()->json(['error' => 'Item não encontrado'], 404);

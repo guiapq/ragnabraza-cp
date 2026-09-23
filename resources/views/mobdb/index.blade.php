@@ -85,7 +85,7 @@
     </div>
 
     {{-- Filtros --}}
-    <form method="GET" action="{{ route('mobdb.index') }}" class="filter-bar mb-4">
+    <form method="GET" action="{{ route('mobdb.index') }}" class="filter-bar mb-4" id="mobFilterForm">
         <div class="card shadow-sm">
             <div class="card-body p-3">
                 <div class="row g-2">
@@ -148,7 +148,8 @@
                             <img src="{{ $mob['sprite_url'] }}"
                                  alt="{{ $mob['name'] }}"
                                  class="mob-sprite"
-                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                 loading="lazy"
+                                 onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $mob['icon_url'] }}';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}">
                             <div class="mob-sprite-placeholder" style="display:none;">?</div>
                         </div>
                         <div class="text-center">
@@ -228,5 +229,37 @@
         RagnaRogue &mdash; Seed <code>{{ $activeSeed }}</code> &mdash; Database procedural gerada deterministicamente.
     </div>
 </footer>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('mobFilterForm');
+    const input = form ? form.querySelector('input[name="q"]') : null;
+    if (!form || !input) return;
+
+    let debounceTimer = null;
+
+    // Restaura o foco e cursor caso a busca tenha acabado de recarregar a pagina
+    if (sessionStorage.getItem('mob_search_focus') === '1') {
+        input.focus();
+        const len = input.value.length;
+        input.setSelectionRange(len, len);
+        sessionStorage.removeItem('mob_search_focus');
+    }
+
+    input.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+            sessionStorage.setItem('mob_search_focus', '1');
+            form.submit();
+        }, 400);
+    });
+
+    // Submissao automatica e imediata ao trocar selects
+    form.querySelectorAll('select').forEach(function (select) {
+        select.addEventListener('change', function () {
+            form.submit();
+        });
+    });
+});
+</script>
 </body>
 </html>

@@ -90,7 +90,7 @@
                                         <tr class="hover:bg-amber-50 transition cursor-pointer {{ $viewMobId === $mob['id'] ? 'bg-amber-100 font-bold' : '' }}" wire:click="selectMob({{ $mob['id'] }})">
                                             <td class="px-4 py-3">
                                                 <div class="flex items-center gap-2">
-                                                    <img src="{{ $mob['sprite_url'] }}" width="24" height="24" alt="" style="image-rendering: pixelated;" onerror="this.style.display='none'">
+                                                    <img src="{{ $mob['icon_url'] ?? $mob['sprite_url'] }}" width="24" height="24" alt="" style="image-rendering: pixelated; object-fit: contain;" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $mob['sprite_url'] }}';}else{this.style.display='none';}">
                                                     <div>
                                                         <div class="font-bold" style="color: #002b36;">{{ $mob['name'] }}</div>
                                                         <div class="text-[11px] font-mono text-gray-500">ID {{ $mob['id'] }}</div>
@@ -133,7 +133,7 @@
                         @if($selectedMob = $this->getSelectedMob())
                             <div class="border rounded-2xl p-5 shadow-sm sticky top-4 space-y-4" style="background-color: #fdf6e3; border-color: #d3cbb7;">
                                 <div class="flex items-center gap-3 border-b pb-4" style="border-color: #d3cbb7;">
-                                    <img src="{{ $selectedMob['sprite_url'] }}" width="48" height="48" alt="" style="image-rendering: pixelated;" class="rounded-xl p-1 border" style="background-color: #eee8d5; border-color: #d3cbb7;" onerror="this.src='https://static.divine-pride.net/images/mobs/1002.gif'">
+                                    <img src="{{ $selectedMob['icon_url'] ?? $selectedMob['sprite_url'] }}" width="48" height="48" alt="" style="image-rendering: pixelated; object-fit: contain;" class="rounded-xl p-1 border" style="background-color: #eee8d5; border-color: #d3cbb7;" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $selectedMob['sprite_url'] }}';}else{this.src='https://static.divine-pride.net/images/mobs/1002.gif';}">
                                     <div>
                                         <h3 class="text-lg font-black" style="color: #002b36;">{{ $selectedMob['name'] }}</h3>
                                         <div class="text-xs font-mono text-gray-500">
@@ -302,7 +302,7 @@
                                         @forelse($selectedItem['dropped_by'] as $dMob)
                                             <div class="flex items-center justify-between p-2 rounded-lg text-xs border" style="background-color: #eee8d5; border-color: #d3cbb7;">
                                                 <div class="flex items-center gap-2">
-                                                    <img src="{{ $dMob['sprite_url'] }}" width="16" height="16" alt="" style="image-rendering: pixelated;" onerror="this.style.display='none'">
+                                                    <img src="{{ $dMob['icon_url'] ?? $dMob['sprite_url'] }}" width="16" height="16" alt="" style="image-rendering: pixelated; object-fit: contain;" onerror="this.style.display='none'">
                                                     <span>{{ $dMob['mob_name'] }} <small class="text-gray-500 font-mono">(Lv {{ $dMob['mob_level'] }})</small></span>
                                                 </div>
                                                 <span class="font-mono font-bold" style="color: #859900;">{{ $dMob['rate_percent'] }}%</span>
@@ -440,7 +440,7 @@
                                             <div class="flex items-center gap-1">
                                                 @foreach($route['mobs'] as $rmob)
                                                     <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono border" style="background-color: #eee8d5; border-color: #d3cbb7;" title="{{ $rmob['name'] }} (Lv {{ $rmob['level'] }}) x{{ $rmob['count'] }}">
-                                                        <img src="{{ $rmob['sprite_url'] }}" width="14" height="14" alt="" style="image-rendering: pixelated;" onerror="this.style.display='none'">
+                                                        <img src="{{ $rmob['icon_url'] ?? $rmob['sprite_url'] }}" width="14" height="14" alt="" style="image-rendering: pixelated; object-fit: contain;" onerror="this.style.display='none'">
                                                         <span>{{ $rmob['count'] }}</span>
                                                     </span>
                                                 @endforeach

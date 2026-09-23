@@ -244,32 +244,86 @@ class WorldDataService
                             }
                         }
 
-                        $mobs[$id] = [
-                            'id' => $id,
-                            'name' => $name,
-                            'level' => (int)$row->LV,
-                            'hp' => (int)$row->HP,
-                            'exp' => (int)$row->EXP,
-                            'jexp' => (int)$row->JEXP,
-                            'atk' => "{$row->ATK1}~{$row->ATK2}",
-                            'def' => (int)$row->DEF,
-                            'mdef' => (int)$row->MDEF,
-                            'race_id' => (int)$row->Race,
-                            'race' => self::RACES[(int)$row->Race] ?? "Race {$row->Race}",
-                            'element_code' => $elemCode,
-                            'element' => $elemName,
-                            'drops' => $drops,
-                            'sprite_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
-                            'divine_url' => "https://www.divine-pride.net/database/monster/{$id}",
-                        ];
+                            $mode = (int)($row->Mode ?? 0);
+
+                            $mobs[$id] = [
+                                'id' => $id,
+                                'name' => $name,
+                                'level' => (int)$row->LV,
+                                'hp' => (int)$row->HP,
+                                'exp' => (int)$row->EXP,
+                                'jexp' => (int)$row->JEXP,
+                                'atk' => "{$row->ATK1}~{$row->ATK2}",
+                                'def' => (int)$row->DEF,
+                                'mdef' => (int)$row->MDEF,
+                                'race_id' => (int)$row->Race,
+                                'race' => self::RACES[(int)$row->Race] ?? "Race {$row->Race}",
+                                'element_code' => $elemCode,
+                                'element' => $elemName,
+                                'mode' => $mode,
+                                'mode_hex' => '0x' . strtoupper(dechex($mode)),
+                                'behaviors' => self::decodeMobMode($mode),
+                                'is_aggressive' => (bool)(($mode & 0x0080) || ($mode & 0x0004)),
+                                'is_boss' => (bool)($mode & 0x0020),
+                                'drops' => $drops,
+                                'icon_url' => "https://static.divine-pride.net/images/mobs/png/{$id}.png",
+                                'sprite_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
+                                'anim_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
+                                'divine_url' => "https://www.divine-pride.net/database/monster/{$id}",
+                            ];
+                        }
                     }
-                }
-            } catch (\Throwable $e) {
+                } catch (\Throwable $e) {
                 // silenciar falhas de conexão temporárias
             }
 
             return $mobs;
         });
+    }
+
+    /**
+     * Decodifica a bitmask Mode do rAthena em comportamentos legíveis.
+     */
+    public static function decodeMobMode(int $mode): array
+    {
+        $behaviors = [];
+
+        // Agressividade básica
+        if ($mode & 0x0080 || $mode & 0x0004) {
+            $behaviors[] = ['key' => 'aggressive', 'label' => 'Agressivo', 'type' => 'danger'];
+        } else {
+            $behaviors[] = ['key' => 'passive', 'label' => 'Passivo', 'type' => 'success'];
+        }
+
+        if ($mode & 0x0001) {
+            $behaviors[] = ['key' => 'can_move', 'label' => 'Móvel', 'type' => 'secondary'];
+        }
+        if ($mode & 0x0002) {
+            $behaviors[] = ['key' => 'looter', 'label' => 'Coleta Itens (Looter)', 'type' => 'info'];
+        }
+        if ($mode & 0x0008) {
+            $behaviors[] = ['key' => 'assist', 'label' => 'Ajuda Aliados (Social)', 'type' => 'primary'];
+        }
+        if ($mode & 0x0010) {
+            $behaviors[] = ['key' => 'cast_sensor', 'label' => 'Reage a Magias (Cast Sensor)', 'type' => 'warning'];
+        }
+        if ($mode & 0x0020) {
+            $behaviors[] = ['key' => 'boss', 'label' => 'Chefe / MVP', 'type' => 'danger'];
+        }
+        if ($mode & 0x0040) {
+            $behaviors[] = ['key' => 'plant', 'label' => 'Planta (Imóvel)', 'type' => 'secondary'];
+        }
+        if ($mode & 0x0100) {
+            $behaviors[] = ['key' => 'change_target_chase', 'label' => 'Muda Alvo na Perseguição', 'type' => 'dark'];
+        }
+        if ($mode & 0x0800) {
+            $behaviors[] = ['key' => 'detect_hide', 'label' => 'Detecta Esconderijo', 'type' => 'dark'];
+        }
+        if ($mode & 0x1000) {
+            $behaviors[] = ['key' => 'detect_cloak', 'label' => 'Detecta Furtividade (Cloak)', 'type' => 'dark'];
+        }
+
+        return $behaviors;
     }
 
     /**
@@ -295,6 +349,7 @@ class WorldDataService
                         'mob_name' => $mob['name'],
                         'mob_level' => $mob['level'],
                         'rate_percent' => $drop['rate_percent'],
+                        'icon_url' => $mob['icon_url'] ?? "https://static.divine-pride.net/images/mobs/png/{$mob['id']}.png",
                         'sprite_url' => $mob['sprite_url'],
                     ];
                 }
@@ -687,6 +742,7 @@ class WorldDataService
                         'name' => $mob['name'],
                         'level' => $lv,
                         'count' => $count,
+                        'icon_url' => $mob['icon_url'] ?? "https://static.divine-pride.net/images/mobs/png/{$mobId}.png",
                         'sprite_url' => $mob['sprite_url'],
                     ];
                 }

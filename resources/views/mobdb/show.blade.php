@@ -102,11 +102,12 @@
                         src="{{ $mob['sprite_url'] }}"
                         alt="{{ $mob['name'] }}"
                         class="mob-sprite-lg mb-3"
-                        onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $mob['icon_url'] }}';}else{this.style.display='none';this.nextElementSibling.style.display='block';}">
                     <div style="display:none;font-size:4rem;color:var(--sol-base1);">?</div>
 
-                    <h1 class="fw-bold text-center mb-1" style="font-size:1.4rem;color:var(--sol-base02);">
-                        {{ $mob['name'] }}
+                    <h1 class="fw-bold text-center mb-1 d-flex align-items-center justify-content-center gap-2" style="font-size:1.4rem;color:var(--sol-base02);">
+                        <img src="{{ $mob['icon_url'] }}" width="28" height="28" alt="" style="image-rendering: pixelated; object-fit: contain;" onerror="this.style.display='none'">
+                        <span>{{ $mob['name'] }}</span>
                     </h1>
                     <div class="text-muted small mb-3" style="color:var(--sol-base1)!important;">
                         ID #{{ $mob['id'] }}
@@ -179,12 +180,44 @@
                         </div>
                     </div>
 
+                    {{-- Comportamento & IA --}}
+                    <p class="section-title mt-3">Comportamento & IA (Mode: <code style="color:var(--sol-blue);">{{ $mob['mode_hex'] ?? '0x0' }}</code>)</p>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        @if(!empty($mob['behaviors']))
+                            @foreach($mob['behaviors'] as $behavior)
+                                @php
+                                    $badgeStyle = match($behavior['type'] ?? '') {
+                                        'danger' => 'background:var(--sol-red);color:#fff;',
+                                        'success' => 'background:var(--sol-green);color:#fff;',
+                                        'warning' => 'background:var(--sol-yellow);color:#fff;',
+                                        'primary' => 'background:var(--sol-blue);color:#fff;',
+                                        'info' => 'background:var(--sol-cyan);color:#fff;',
+                                        'dark' => 'background:var(--sol-base02);color:#fff;',
+                                        default => 'background:var(--sol-base2);color:var(--sol-base01);',
+                                    };
+                                @endphp
+                                <span class="badge px-2 py-1" style="{{ $badgeStyle }}font-size:.8rem;">
+                                    {{ $behavior['label'] }}
+                                </span>
+                            @endforeach
+                        @else
+                            <span class="badge px-2 py-1" style="background:var(--sol-base2);color:var(--sol-base01);">
+                                Padrão (Sem flags especiais)
+                            </span>
+                        @endif
+                    </div>
+
                     {{-- Mapas de Spawn --}}
                     <p class="section-title">Mapas de Spawn ({{ count($maps) }})</p>
                     @if(count($maps) > 0)
                         <div class="d-flex flex-wrap gap-2 mb-2">
                             @foreach($maps as $map)
-                                <span class="map-badge">{{ $map }}</span>
+                                <span class="map-badge d-inline-flex align-items-center gap-1">
+                                    <span>{{ $map }}</span>
+                                    @if(isset($mapCounts[$map]))
+                                        <small class="text-muted font-monospace">({{ $mapCounts[$map] }}x)</small>
+                                    @endif
+                                </span>
                             @endforeach
                         </div>
                     @else
@@ -199,7 +232,7 @@
     @if(count($mob['drops']) > 0)
         <div class="card shadow mb-4" style="border-radius:.75rem;">
             <div class="card-body p-4">
-                <p class="section-title">Drops ({{ count($mob['drops']) }} itens)</p>
+                <p class="section-title">Drops Procedurais ({{ count($mob['drops']) }} itens)</p>
 
                 <div class="table-responsive">
                     <table class="table table-hover mb-0" style="font-size:.9rem;">
@@ -209,7 +242,7 @@
                                 <th>Item</th>
                                 <th class="text-end" style="width:100px;">Chance</th>
                                 <th style="width:200px;"></th>
-                                <th class="text-end" style="width:80px;">Links</th>
+                                <th class="text-end" style="width:100px;">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -221,13 +254,20 @@
                                 @endphp
                                 <tr class="drop-row">
                                     <td class="align-middle text-center">
-                                        <img src="{{ $drop['sprite_url'] }}"
-                                             alt="{{ $drop['item_name'] }}"
-                                             style="width:28px;height:28px;object-fit:contain;image-rendering:pixelated;"
-                                             onerror="this.style.opacity='.3'">
+                                        <a href="{{ route('market.index', ['q' => $drop['item_id']]) }}">
+                                            <img src="{{ $drop['sprite_url'] }}"
+                                                 alt="{{ $drop['item_name'] }}"
+                                                 style="width:28px;height:28px;object-fit:contain;image-rendering:pixelated;"
+                                                 onerror="this.style.opacity='.3'">
+                                        </a>
                                     </td>
                                     <td class="align-middle fw-semibold" style="color:var(--sol-base01);">
-                                        {{ $drop['item_name'] }}
+                                        <a href="{{ route('market.index', ['q' => $drop['item_id']]) }}"
+                                           class="text-decoration-none"
+                                           style="color:inherit;"
+                                           title="Ver lojas e monstros que dropam este item no Mercado">
+                                            {{ $drop['item_name'] }}
+                                        </a>
                                         <span class="text-muted ms-1" style="font-size:.75rem;font-weight:400;">#{{ $drop['item_id'] }}</span>
                                     </td>
                                     <td class="align-middle text-end fw-bold" style="color:{{ $barColor }};font-family:monospace;">
@@ -239,10 +279,11 @@
                                         </div>
                                     </td>
                                     <td class="align-middle text-end">
-                                        <a href="{{ route('market.item', $drop['item_id']) }}"
+                                        <a href="{{ route('market.index', ['q' => $drop['item_id']]) }}"
                                            class="btn btn-outline-secondary btn-sm"
-                                           style="font-size:.7rem;padding:2px 8px;">
-                                            Item
+                                           style="font-size:.7rem;padding:2px 8px;"
+                                           title="Buscar no Mercado">
+                                            Mercado
                                         </a>
                                     </td>
                                 </tr>
