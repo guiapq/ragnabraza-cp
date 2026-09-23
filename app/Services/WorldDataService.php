@@ -135,7 +135,7 @@ class WorldDataService
     }
 
     /**
-     * Carrega e processa a tabela de itens (item_db no SQL ou item_db.txt).
+     * Carrega e processa a tabela de itens diretamente da base SQL (item_db).
      */
     public function getItems(): array
     {
@@ -145,95 +145,36 @@ class WorldDataService
             $ptBr = $this->getPtBrTranslations();
             $items = [];
 
-            // 1. Tentar carregar da tabela SQL item_db (padrão SQL rAthena)
             try {
                 if (\Illuminate\Support\Facades\Schema::hasTable('item_db')) {
                     $rows = DB::table('item_db')->get();
-                    if ($rows->isNotEmpty()) {
-                        foreach ($rows as $row) {
-                            $id = (int)$row->id;
-                            $origName = $row->name_japanese ?: $row->name_english;
-                            $name = $ptBr[$id] ?? $origName;
-                            $typeCode = (int)$row->type;
+                    foreach ($rows as $row) {
+                        $id = (int)$row->id;
+                        $origName = $row->name_japanese ?: $row->name_english;
+                        $name = $ptBr[$id] ?? $origName;
+                        $typeCode = (int)$row->type;
 
-                            $items[$id] = [
-                                'id' => $id,
-                                'aegis' => $row->name_english,
-                                'name' => $name,
-                                'original_name' => $origName,
-                                'type_id' => $typeCode,
-                                'type' => self::ITEM_TYPES[$typeCode] ?? 'Outros',
-                                'buy' => (int)($row->price_buy ?? 0),
-                                'sell' => (int)($row->price_sell ?? 0),
-                                'weight' => ((int)$row->weight) / 10,
-                                'atk' => (int)($row->attack ?? 0),
-                                'def' => (int)($row->defence ?? 0),
-                                'slots' => (int)($row->slots ?? 0),
-                                'script' => $row->script ?? '',
-                                'sprite_url' => "https://static.divine-pride.net/images/items/item/{$id}.png",
-                                'divine_url' => "https://www.divine-pride.net/database/item/{$id}",
-                            ];
-                        }
-                        return $items;
+                        $items[$id] = [
+                            'id' => $id,
+                            'aegis' => $row->name_english,
+                            'name' => $name,
+                            'original_name' => $origName,
+                            'type_id' => $typeCode,
+                            'type' => self::ITEM_TYPES[$typeCode] ?? 'Outros',
+                            'buy' => (int)($row->price_buy ?? 0),
+                            'sell' => (int)($row->price_sell ?? 0),
+                            'weight' => ((int)$row->weight) / 10,
+                            'atk' => (int)($row->attack ?? 0),
+                            'def' => (int)($row->defence ?? 0),
+                            'slots' => (int)($row->slots ?? 0),
+                            'script' => $row->script ?? '',
+                            'sprite_url' => "https://static.divine-pride.net/images/items/item/{$id}.png",
+                            'divine_url' => "https://www.divine-pride.net/database/item/{$id}",
+                        ];
                     }
                 }
             } catch (\Throwable $e) {
-                // fallback
-            }
-
-            // 2. Fallback TXT (priorizando pre-re procedural)
-            $itemDbPath = $this->getDataPath('db/pre-re/item_db.txt') ?: $this->getDataPath('db/re/item_db.txt');
-            if (!$itemDbPath || !file_exists($itemDbPath)) {
-                return [];
-            }
-
-            $lines = file($itemDbPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-            foreach ($lines as $line) {
-                if (str_starts_with($line, '//') || empty(trim($line))) {
-                    continue;
-                }
-
-                $cols = explode(',', $line);
-                if (count($cols) < 10) {
-                    continue;
-                }
-
-                $id = (int)$cols[0];
-                $aegis = trim($cols[1]);
-                $origName = trim($cols[2]);
-                $name = $ptBr[$id] ?? $origName;
-                $typeCode = (int)($cols[3] ?? 3);
-                $buy = (int)($cols[4] ?? 0);
-                $sell = (int)($cols[5] ?? 0);
-                $weight = (int)($cols[6] ?? 0) / 10;
-                $atk = (int)($cols[7] ?? 0);
-                $def = (int)($cols[8] ?? 0);
-                $slots = (int)($cols[10] ?? 0);
-
-                // Script
-                $script = '';
-                if (preg_match('/\{([^}]+)\}/', $line, $scriptMatch)) {
-                    $script = trim($scriptMatch[1]);
-                }
-
-                $items[$id] = [
-                    'id' => $id,
-                    'aegis' => $aegis,
-                    'name' => $name,
-                    'original_name' => $origName,
-                    'type_id' => $typeCode,
-                    'type' => self::ITEM_TYPES[$typeCode] ?? 'Outros',
-                    'buy' => $buy,
-                    'sell' => $sell,
-                    'weight' => $weight,
-                    'atk' => $atk,
-                    'def' => $def,
-                    'slots' => $slots,
-                    'script' => $script,
-                    'sprite_url' => "https://static.divine-pride.net/images/items/item/{$id}.png",
-                    'divine_url' => "https://www.divine-pride.net/database/item/{$id}",
-                ];
+                // silenciar falhas de conexão temporárias
             }
 
             return $items;
@@ -241,7 +182,7 @@ class WorldDataService
     }
 
     /**
-     * Carrega e processa a tabela de monstros (mob_db no SQL ou mob_db.txt) e seus drops.
+     * Carrega e processa a tabela de monstros e seus drops diretamente da base SQL (mob_db).
      */
     public function getMobs(): array
     {
@@ -251,167 +192,80 @@ class WorldDataService
             $items = $this->getItems();
             $mobs = [];
 
-            // 1. Tentar carregar da tabela SQL mob_db (padrão SQL rAthena)
             try {
                 if (\Illuminate\Support\Facades\Schema::hasTable('mob_db')) {
                     $rows = DB::table('mob_db')->get();
-                    if ($rows->isNotEmpty()) {
-                        foreach ($rows as $row) {
-                            $id = (int)$row->ID;
-                            $name = trim(!empty($row->iName) ? $row->iName : $row->kName);
-                            $elemCode = (int)$row->Element;
-                            $elemType = $elemCode % 20;
-                            $elemLv = max(1, intdiv($elemCode, 20));
-                            $elemName = (self::ELEMENTS[$elemType] ?? "Elem {$elemType}") . " {$elemLv}";
+                    foreach ($rows as $row) {
+                        $id = (int)$row->ID;
+                        $name = trim(!empty($row->iName) ? $row->iName : $row->kName);
+                        $elemCode = (int)$row->Element;
+                        $elemType = $elemCode % 20;
+                        $elemLv = max(1, intdiv($elemCode, 20));
+                        $elemName = (self::ELEMENTS[$elemType] ?? "Elem {$elemType}") . " {$elemLv}";
 
-                            $drops = [];
-                            for ($i = 1; $i <= 9; $i++) {
-                                $dropId = (int)($row->{"Drop{$i}id"} ?? 0);
-                                $dropRate = (int)($row->{"Drop{$i}per"} ?? 0);
-                                if ($dropId > 0 && $dropRate > 0) {
-                                    $drops[] = [
-                                        'item_id' => $dropId,
-                                        'item_name' => $items[$dropId]['name'] ?? "Item #{$dropId}",
-                                        'rate_raw' => $dropRate,
-                                        'rate_percent' => max(0.01, round($dropRate / 100, 2)),
-                                        'sprite_url' => "https://static.divine-pride.net/images/items/item/{$dropId}.png",
-                                    ];
-                                }
-                            }
-                            $cardId = (int)($row->DropCardid ?? 0);
-                            $cardRate = (int)($row->DropCardper ?? 0);
-                            if ($cardId > 0 && $cardRate > 0) {
+                        $drops = [];
+                        for ($i = 1; $i <= 9; $i++) {
+                            $dropId = (int)($row->{"Drop{$i}id"} ?? 0);
+                            $dropRate = (int)($row->{"Drop{$i}per"} ?? 0);
+                            if ($dropId > 0 && $dropRate > 0) {
                                 $drops[] = [
-                                    'item_id' => $cardId,
-                                    'item_name' => $items[$cardId]['name'] ?? "Item #{$cardId}",
-                                    'rate_raw' => $cardRate,
-                                    'rate_percent' => max(0.01, round($cardRate / 100, 2)),
-                                    'sprite_url' => "https://static.divine-pride.net/images/items/item/{$cardId}.png",
-                                    'is_card' => true,
+                                    'item_id' => $dropId,
+                                    'item_name' => $items[$dropId]['name'] ?? "Item #{$dropId}",
+                                    'rate_raw' => $dropRate,
+                                    'rate_percent' => max(0.01, round($dropRate / 100, 2)),
+                                    'sprite_url' => "https://static.divine-pride.net/images/items/item/{$dropId}.png",
                                 ];
                             }
-                            for ($i = 1; $i <= 3; $i++) {
-                                $mvpId = (int)($row->{"MVP{$i}id"} ?? 0);
-                                $mvpRate = (int)($row->{"MVP{$i}per"} ?? 0);
-                                if ($mvpId > 0 && $mvpRate > 0) {
-                                    $drops[] = [
-                                        'item_id' => $mvpId,
-                                        'item_name' => $items[$mvpId]['name'] ?? "Item #{$mvpId}",
-                                        'rate_raw' => $mvpRate,
-                                        'rate_percent' => max(0.01, round($mvpRate / 100, 2)),
-                                        'sprite_url' => "https://static.divine-pride.net/images/items/item/{$mvpId}.png",
-                                        'is_mvp' => true,
-                                    ];
-                                }
-                            }
-
-                            $mobs[$id] = [
-                                'id' => $id,
-                                'name' => $name,
-                                'level' => (int)$row->LV,
-                                'hp' => (int)$row->HP,
-                                'exp' => (int)$row->EXP,
-                                'jexp' => (int)$row->JEXP,
-                                'atk' => "{$row->ATK1}~{$row->ATK2}",
-                                'def' => (int)$row->DEF,
-                                'mdef' => (int)$row->MDEF,
-                                'race_id' => (int)$row->Race,
-                                'race' => self::RACES[(int)$row->Race] ?? "Race {$row->Race}",
-                                'element_code' => $elemCode,
-                                'element' => $elemName,
-                                'drops' => $drops,
-                                'sprite_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
-                                'divine_url' => "https://www.divine-pride.net/database/monster/{$id}",
+                        }
+                        $cardId = (int)($row->DropCardid ?? 0);
+                        $cardRate = (int)($row->DropCardper ?? 0);
+                        if ($cardId > 0 && $cardRate > 0) {
+                            $drops[] = [
+                                'item_id' => $cardId,
+                                'item_name' => $items[$cardId]['name'] ?? "Item #{$cardId}",
+                                'rate_raw' => $cardRate,
+                                'rate_percent' => max(0.01, round($cardRate / 100, 2)),
+                                'sprite_url' => "https://static.divine-pride.net/images/items/item/{$cardId}.png",
+                                'is_card' => true,
                             ];
                         }
-                        return $mobs;
-                    }
-                }
-            } catch (\Throwable $e) {
-                // fallback
-            }
-
-            // 2. Fallback TXT (priorizando pre-re procedural)
-            $mobDbPath = $this->getDataPath('db/pre-re/mob_db.txt') ?: $this->getDataPath('db/re/mob_db.txt');
-            if (!$mobDbPath || !file_exists($mobDbPath)) {
-                return [];
-            }
-
-            $lines = file($mobDbPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-            foreach ($lines as $line) {
-                if (str_starts_with($line, '//') || empty(trim($line))) {
-                    continue;
-                }
-
-                $cols = explode(',', $line);
-                if (count($cols) < 25) {
-                    continue;
-                }
-
-                $id = (int)$cols[0];
-                $name = trim(!empty($cols[3]) ? $cols[3] : $cols[2]);
-                $lv = (int)$cols[4];
-                $hp = (int)$cols[5];
-                $exp = (int)($cols[7] ?? 0);
-                $jexp = (int)($cols[8] ?? 0);
-                $atk1 = (int)($cols[10] ?? 0);
-                $atk2 = (int)($cols[11] ?? 0);
-                $def = (int)($cols[12] ?? 0);
-                $mdef = (int)($cols[13] ?? 0);
-                $raceId = (int)($cols[23] ?? 0);
-                $elemCode = (int)($cols[24] ?? 0);
-
-                // Elemento e Nível
-                $elemType = $elemCode % 20;
-                $elemLv = max(1, intdiv($elemCode, 20));
-                $elemName = (self::ELEMENTS[$elemType] ?? "Elem {$elemType}") . " {$elemLv}";
-
-                // Extração de Drops (colunas a partir de 31 em pares id, rate)
-                $drops = [];
-                $dropCols = array_slice($cols, 31);
-                for ($i = 0; $i < count($dropCols); $i += 2) {
-                    if ($i + 1 >= count($dropCols)) {
-                        break;
-                    }
-                    $dropItemId = (int)trim($dropCols[$i]);
-                    $dropRate = (int)trim($dropCols[$i + 1]);
-
-                    if ($dropItemId > 0 && $dropRate > 0) {
-                        $itemName = $items[$dropItemId]['name'] ?? "Item #{$dropItemId}";
-                        $ratePercent = round($dropRate / 100, 2);
-                        if ($ratePercent <= 0 && $dropRate > 0) {
-                            $ratePercent = 0.01;
+                        for ($i = 1; $i <= 3; $i++) {
+                            $mvpId = (int)($row->{"MVP{$i}id"} ?? 0);
+                            $mvpRate = (int)($row->{"MVP{$i}per"} ?? 0);
+                            if ($mvpId > 0 && $mvpRate > 0) {
+                                $drops[] = [
+                                    'item_id' => $mvpId,
+                                    'item_name' => $items[$mvpId]['name'] ?? "Item #{$mvpId}",
+                                    'rate_raw' => $mvpRate,
+                                    'rate_percent' => max(0.01, round($mvpRate / 100, 2)),
+                                    'sprite_url' => "https://static.divine-pride.net/images/items/item/{$mvpId}.png",
+                                    'is_mvp' => true,
+                                ];
+                            }
                         }
 
-                        $drops[] = [
-                            'item_id' => $dropItemId,
-                            'item_name' => $itemName,
-                            'rate_raw' => $dropRate,
-                            'rate_percent' => $ratePercent,
-                            'sprite_url' => "https://static.divine-pride.net/images/items/item/{$dropItemId}.png",
+                        $mobs[$id] = [
+                            'id' => $id,
+                            'name' => $name,
+                            'level' => (int)$row->LV,
+                            'hp' => (int)$row->HP,
+                            'exp' => (int)$row->EXP,
+                            'jexp' => (int)$row->JEXP,
+                            'atk' => "{$row->ATK1}~{$row->ATK2}",
+                            'def' => (int)$row->DEF,
+                            'mdef' => (int)$row->MDEF,
+                            'race_id' => (int)$row->Race,
+                            'race' => self::RACES[(int)$row->Race] ?? "Race {$row->Race}",
+                            'element_code' => $elemCode,
+                            'element' => $elemName,
+                            'drops' => $drops,
+                            'sprite_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
+                            'divine_url' => "https://www.divine-pride.net/database/monster/{$id}",
                         ];
                     }
                 }
-
-                $mobs[$id] = [
-                    'id' => $id,
-                    'name' => $name,
-                    'level' => $lv,
-                    'hp' => $hp,
-                    'exp' => $exp,
-                    'jexp' => $jexp,
-                    'atk' => "{$atk1}~{$atk2}",
-                    'def' => $def,
-                    'mdef' => $mdef,
-                    'race_id' => $raceId,
-                    'race' => self::RACES[$raceId] ?? "Race {$raceId}",
-                    'element_code' => $elemCode,
-                    'element' => $elemName,
-                    'drops' => $drops,
-                    'sprite_url' => "https://static.divine-pride.net/images/mobs/{$id}.gif",
-                    'divine_url' => "https://www.divine-pride.net/database/monster/{$id}",
-                ];
+            } catch (\Throwable $e) {
+                // silenciar falhas de conexão temporárias
             }
 
             return $mobs;

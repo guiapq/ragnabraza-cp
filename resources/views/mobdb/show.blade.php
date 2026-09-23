@@ -252,7 +252,7 @@
                 </div>
 
                 <div class="mt-3 p-3 rounded-2" style="background:var(--sol-base3);border:1px solid var(--sol-border);font-size:.78rem;color:var(--sol-base1);">
-                    Taxas calculadas sobre a tabela <code>mob_db.txt</code> da seed <strong>{{ $activeSeed }}</strong>.
+                    Taxas calculadas sobre a tabela <code>mob_db (SQL)</code> da seed <strong>{{ $activeSeed }}</strong>.
                     Drop rates sao base/10000 (ex: 5500 = 55%).
                 </div>
             </div>

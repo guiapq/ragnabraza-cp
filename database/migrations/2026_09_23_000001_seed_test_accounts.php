@@ -18,19 +18,20 @@ return new class extends Migration
         $now = now();
 
         $accounts = [
-            'teste_swordie'    => ['id' => 2000010, 'pass' => 'teste123'],
-            'teste_mage'       => ['id' => 2000011, 'pass' => 'teste123'],
-            'teste_archer'     => ['id' => 2000012, 'pass' => 'teste123'],
-            'teste_acolyte'    => ['id' => 2000013, 'pass' => 'teste123'],
-            'teste_merchant'   => ['id' => 2000014, 'pass' => 'teste123'],
-            'teste_thief'      => ['id' => 2000015, 'pass' => 'teste123'],
-            'teste_knight'     => ['id' => 2000016, 'pass' => 'teste123'],
-            'teste_wizard'     => ['id' => 2000017, 'pass' => 'teste123'],
-            'teste_priest'     => ['id' => 2000018, 'pass' => 'teste123'],
-            'teste_blacksmith' => ['id' => 2000019, 'pass' => 'teste123'],
-            'teste_hunter'     => ['id' => 2000020, 'pass' => 'teste123'],
-            'teste_assassin'   => ['id' => 2000021, 'pass' => 'teste123'],
-            'teste_extended'   => ['id' => 2000022, 'pass' => 'teste123'],
+            'roadmin'          => ['id' => 2000001, 'pass' => 'roadmin',  'group' => 99, 'email' => 'admin@ragnarogue.local'],
+            'teste_swordie'    => ['id' => 2000010, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_swordie@test.local'],
+            'teste_mage'       => ['id' => 2000011, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_mage@test.local'],
+            'teste_archer'     => ['id' => 2000012, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_archer@test.local'],
+            'teste_acolyte'    => ['id' => 2000013, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_acolyte@test.local'],
+            'teste_merchant'   => ['id' => 2000014, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_merchant@test.local'],
+            'teste_thief'      => ['id' => 2000015, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_thief@test.local'],
+            'teste_knight'     => ['id' => 2000016, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_knight@test.local'],
+            'teste_wizard'     => ['id' => 2000017, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_wizard@test.local'],
+            'teste_priest'     => ['id' => 2000018, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_priest@test.local'],
+            'teste_blacksmith' => ['id' => 2000019, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_blacksmith@test.local'],
+            'teste_hunter'     => ['id' => 2000020, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_hunter@test.local'],
+            'teste_assassin'   => ['id' => 2000021, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_assassin@test.local'],
+            'teste_extended'   => ['id' => 2000022, 'pass' => 'teste123', 'group' => 6,  'email' => 'teste_extended@test.local'],
         ];
 
         foreach ($accounts as $userid => $data) {
@@ -40,8 +41,8 @@ return new class extends Migration
                     'userid'          => $userid,
                     'user_pass'       => $data['pass'],
                     'sex'             => 'M',
-                    'email'           => "{$userid}@test.local",
-                    'group_id'        => 6, // Grupo 6: Tester
+                    'email'           => $data['email'] ?? "{$userid}@test.local",
+                    'group_id'        => $data['group'] ?? 6,
                     'birthdate'       => '2000-01-01',
                     'character_slots' => 9,
                     'created_at'      => $now,
