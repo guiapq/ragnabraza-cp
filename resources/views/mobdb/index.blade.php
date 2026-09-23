@@ -145,11 +145,11 @@
                 <div class="col">
                     <a href="{{ route('mobdb.show', $mob['id']) }}" class="mob-card p-2">
                         <div class="text-center mb-1">
-                            <img src="{{ $mob['sprite_url'] }}"
+                            <img src="{{ $mob['sprite_url'] ?? ('https://static.divine-pride.net/images/mobs/' . $mob['id'] . '.gif') }}"
                                  alt="{{ $mob['name'] }}"
                                  class="mob-sprite"
                                  loading="lazy"
-                                 onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $mob['icon_url'] }}';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}">
+                                 onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='{{ $mob['icon_url'] ?? ('https://static.divine-pride.net/images/mobs/png/' . $mob['id'] . '.png') }}';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}">
                             <div class="mob-sprite-placeholder" style="display:none;">?</div>
                         </div>
                         <div class="text-center">
