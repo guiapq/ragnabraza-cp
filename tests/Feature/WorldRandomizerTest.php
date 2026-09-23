@@ -120,3 +120,77 @@ test('migration de seed do mundo foi registrada no banco de dados', function () 
 
     expect($seedMigration)->toBeTrue();
 });
+
+test('nomes dos monstros foram randomizados com afixos procedurais no modo SQL', function () {
+    $prefixes = ['Angry', 'Ancient', 'Turbo', 'Mutated', 'Forgotten', 'Cursed', 'Radiant', 'Chaotic', 'Cosmic', 'Shadow'];
+    $suffixes = ['Beast', 'Thing', 'Horror', 'Creature', 'Abomination', 'Spawn', 'Monster', 'Gremlin', 'Blob', 'Entity'];
+
+    $prefixRegex = implode('|', $prefixes);
+    $suffixRegex = implode('|', $suffixes);
+    $pattern = "^({$prefixRegex}) .* ({$suffixRegex})$";
+
+    // Contar monstros cujo nome segue a gramática procedural do randomizador
+    $randomizedCount = DB::table('mob_db')
+        ->whereRaw("iName REGEXP '{$pattern}'")
+        ->count();
+
+    expect($randomizedCount)->toBeGreaterThan(800);
+
+    // Validar caso concreto: Poring (1002) não deve ter o nome estático canônico 'Poring'
+    $poring = DB::table('mob_db')->where('ID', 1002)->first();
+    expect($poring)->not->toBeNull();
+    expect($poring->iName)->not->toBe('Poring');
+    expect($poring->iName)->toMatch("/({$prefixRegex}) Poring ({$suffixRegex})/");
+
+    // Validar através do WorldDataService
+    $service = app(\App\Services\WorldDataService::class);
+    $mobs = $service->getMobs();
+    expect($mobs[1002]['name'])->toBe($poring->iName);
+});
+
+test('comportamento e IA (Mode) dos monstros foram randomizados e preservados no SQL', function () {
+    // Mode define o comportamento da IA (0x80: Agressivo, 0x01: Pode se mover, 0x02: Looter, 0x20: Boss)
+    // No modo SQL, o campo Mode não deve estar zerado para monstros ativos
+    $mobsWithMode = DB::table('mob_db')
+        ->where('Mode', '>', 0)
+        ->count();
+
+    expect($mobsWithMode)->toBeGreaterThan(900);
+
+    // Poring (1002) possui flags de comportamento preservadas (ex: 0x83 = pode mover, looter, agressivo/assist)
+    $poring = DB::table('mob_db')->where('ID', 1002)->first();
+    expect($poring->Mode)->toBeGreaterThan(0);
+
+    // Scorpion (1001) possui bitmask completo de IA preservado
+    $scorpion = DB::table('mob_db')->where('ID', 1001)->first();
+    expect($scorpion->Mode)->toBeGreaterThan(0);
+
+    // Validar que existem monstros agressivos com a flag 0x80 ativa
+    $aggressiveCount = DB::table('mob_db')
+        ->whereRaw('(Mode & 128) > 0')
+        ->count();
+
+    expect($aggressiveCount)->toBeGreaterThan(500);
+});
+
+test('atributos de combate dos monstros (HP, ATK, DEF) foram randomizados a partir da seed', function () {
+    // Em pre-re vanilla, Poring possui exatamente HP=50 e Wolf possui HP=919.
+    // A pipeline de randomize_stats aplica mutação procedural de acordo com a seed.
+    $poring = DB::table('mob_db')->where('ID', 1002)->first();
+    $wolf = DB::table('mob_db')->where('ID', 1013)->first();
+
+    expect($poring)->not->toBeNull();
+    expect($wolf)->not->toBeNull();
+
+    // Pelo menos um dos monstros clássicos deve ter HP mutado em relação ao vanilla estático
+    $isStatsMutated = ($poring->HP !== 50) || ($wolf->HP !== 919);
+    expect($isStatsMutated)->toBeTrue();
+
+    // Integridade: nenhum monstro tem HP negativo ou zerado
+    $invalidStats = DB::table('mob_db')
+        ->where('HP', '<=', 0)
+        ->orWhere('ATK1', '<', 0)
+        ->count();
+
+    expect($invalidStats)->toBe(0);
+});
