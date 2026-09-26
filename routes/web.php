@@ -147,6 +147,9 @@ Route::get('/market/item/{id}', [\App\Http\Controllers\Game\MarketController::cl
 Route::get('/mobdb', [\App\Http\Controllers\Game\MobDbController::class, 'index'])->name('mobdb.index');
 Route::get('/mobdb/{id}', [\App\Http\Controllers\Game\MobDbController::class, 'show'])->where('id', '[0-9]+')->name('mobdb.show');
 
+// Equipamentos Randomizados (Amostras com "????")
+Route::get('/equipamentos-randomizados', [\App\Http\Controllers\Game\RandomEquipController::class, 'index'])->name('random.equips');
+
 
 Route::get('/scoreboard', function () {
     $seed = 'default';
