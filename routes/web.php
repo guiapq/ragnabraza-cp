@@ -153,14 +153,44 @@ Route::get('/equipamentos-randomizados', [\App\Http\Controllers\Game\RandomEquip
 
 Route::get('/scoreboard', function () {
     $seed = 'default';
-    $randoFile = base_path('../.env.rando');
-    if (file_exists($randoFile)) {
-        $content = file_get_contents($randoFile);
-        if (preg_match('/^WORLD_SEED=(.*)$/m', $content, $matches)) {
-            $seed = trim($matches[1]);
+    $metadata = \Illuminate\Support\Facades\DB::table('world_metadata')->where('key', 'active_seed')->first();
+    if ($metadata && !empty($metadata->value)) {
+        $seed = $metadata->value;
+    } else {
+        $randoFile = base_path('../.env.rando');
+        if (file_exists($randoFile)) {
+            $content = file_get_contents($randoFile);
+            if (preg_match('/^WORLD_SEED=(.*)$/m', $content, $matches)) {
+                $seed = trim($matches[1]);
+            }
         }
     }
 
+    // 1. Metadados e status da Run
+    $runMeta = \Illuminate\Support\Facades\DB::table('run_metadata')->where('seed', $seed)->first();
+
+    // 2. Os 7 Fragmentos do Cometa
+    $fragments = collect();
+    $fragmentsDestroyedCount = 0;
+    try {
+        $fragments = \Illuminate\Support\Facades\DB::table('world_comet_fragments')
+            ->where('seed', $seed)
+            ->orderBy('id', 'asc')
+            ->get();
+        $fragmentsDestroyedCount = $fragments->where('defeated', 1)->count();
+    } catch (\Exception $e) {}
+
+    // 3. Placar por Goals (Metas Roguelike)
+    $leaderboard = collect();
+    try {
+        $leaderboard = \Illuminate\Support\Facades\DB::table('run_goal_leaderboard')
+            ->where('seed', $seed)
+            ->orderByDesc('total_score')
+            ->take(25)
+            ->get();
+    } catch (\Exception $e) {}
+
+    // 4. Speedrun 99 e MVP Bounties tradicionais
     try {
         $speedruns = \App\Models\Game\EventSpeedrun::eligible()->orderBy('total_seconds', 'asc')->take(10)->get();
     } catch (\Exception $e) {
@@ -188,7 +218,16 @@ Route::get('/scoreboard', function () {
         $recentKills = collect();
     }
 
-    return view('scoreboard', compact('seed', 'speedruns', 'mvpBounties', 'recentKills'));
+    return view('scoreboard', compact(
+        'seed',
+        'runMeta',
+        'fragments',
+        'fragmentsDestroyedCount',
+        'leaderboard',
+        'speedruns',
+        'mvpBounties',
+        'recentKills'
+    ));
 })->name('event.scoreboard');
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
